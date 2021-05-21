@@ -8,6 +8,7 @@ from h3 import h3
 from h3 import H3CellError
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
+AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
 
 @pd.api.extensions.register_dataframe_accessor('h3')
@@ -22,11 +23,26 @@ class H3Accessor:
                   resolution: int,
                   lat_col: str = 'lat',
                   lng_col: str = 'lng',
-                  set_index: bool = True) -> DataFrame:
+                  set_index: bool = True) -> AnyDataFrame:
         """Adds H3 index to (Geo)DataFrame.
 
         pd.DataFrame: uses `lat_col` and `lng_col` (default `lat` and `lng`)
         gpd.GeoDataFrame: uses `geometry`
+
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        lat_col : str
+            Name of the latitude column (if used), default 'lat'
+        lng_col : str
+            Name of the longitude column (if used), default 'lng'
+        set_index : bool
+            If True, the columns with H3 addresses is set as index, default 'True'
+
+        Returns
+        -------
+        (Geo)DataFrame with H3 addresses added
         """
         if isinstance(self._df, gpd.GeoDataFrame):
             lngs = self._df.geometry.x
@@ -43,7 +59,17 @@ class H3Accessor:
         return df
 
     def h3_to_geo_boundary(self) -> GeoDataFrame:
-        """Add `geometry` with H3 hexagons to the DataFrame. Assumes H3 index."""
+        """Add `geometry` with H3 hexagons to the DataFrame. Assumes H3 index.
+
+        Returns
+        -------
+        GeoDataFrame with H3 geometry
+
+        Raises
+        ------
+        TypeError
+            When an invalid H3 address is encountered
+        """
 
         def _to_polygon(h):
             try:
@@ -56,13 +82,28 @@ class H3Accessor:
         return gpd.GeoDataFrame(self._df, geometry=geometries, crs='epsg:4326')
 
     def h3_to_parent(self,
-                     resolution: int) -> GeoDataFrame:
-        """Adds the column `h3_parent` containing the parent of each H3 address. Assumes H3 index."""
+                     resolution: int) -> AnyDataFrame:
+        """Adds the column `h3_parent` containing the parent of each H3 address. Assumes H3 index.
+
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+
+        Returns
+        -------
+        (Geo)DataFrame with `h3_parent` column added
+        """
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
         return self._df.assign(h3_parent=parent_h3addresses)
 
-    def h3_get_resolution(self) -> GeoDataFrame:
-        """Adds the column `h3_resolution` containing the resolution of each H3 address. Assumes H3 index."""
+    def h3_get_resolution(self) -> AnyDataFrame:
+        """Adds the column `h3_resolution` containing the resolution of each H3 address. Assumes H3 index.
+
+        Returns
+        -------
+        Geo(DataFrame) with `h3_resolution` column added
+        """
 
         resolutions = [h3.h3_get_resolution(h3address) for h3address in self._df.index]
         return self._df.assign(h3_resolution=resolutions)
@@ -82,17 +123,44 @@ class H3Accessor:
         - if you with to add H3 geometry, chain with `h3_to_geo_boundary`
 
         pd.DataFrame: uses `lat_col` and `lng_col` (default `lat` and `lng`)
-        gpd.GeoDataFrame: uses `geometry`"""
+        gpd.GeoDataFrame: uses `geometry`
 
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        lat_col : str
+            Name of the latitude column (if used), default 'lat'
+        lng_col : str
+            Name of the longitude column (if used), default 'lng'
+        operation : Union[dict, str, Callable]
+            Argument passed to DataFrame's `agg` method, default 'sum'
+
+
+        Returns
+        -------
+        DataFrame aggregated by H3 address into which each row's point falls
+        """
         return pd.DataFrame(self.geo_to_h3(resolution, lat_col, lng_col, False)
-                            .groupby(f'h3_{resolution}')
                             .agg(operation)
                             .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore'))
 
     def h3_to_parent_aggregate(self,
                                resolution: int,
                                operation: Union[dict, str, Callable] = 'sum') -> GeoDataFrame:
-        """Assigns parent cell to each row, groups by it and performs `operation`. Assumes H3 index."""
+        """Assigns parent cell to each row, groups by it and performs `operation`. Assumes H3 index.
+
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        operation : Union[dict, str, Callable]
+            Argument passed to DataFrame's `agg` method, default 'sum'
+
+        Returns
+        -------
+        GeoDataFrame aggregated by the parent of each H3 address
+        """
         has_geometry = 'geometry' in self._df.columns
 
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
