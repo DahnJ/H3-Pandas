@@ -3,18 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to h3pandas's documentation!
+
+
+====================================
+H3-Pandas
 ====================================
 
+.. image:: _static/logo.png
+
+Welcome to the documentation of H3-Pandas!
+
+Take a look at the :ref:`h3pandas`
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :hidden:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    h3pandas

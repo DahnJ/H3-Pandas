@@ -110,9 +110,10 @@ For a full API documentation and more usage examples, see the [documentation](ht
 This package is under active development, **suggestions and contributions are very welcome**!
 
 In particular, the next steps are:
+- [ ] Improve documentation, examples
 - [ ] Greater coverage of the H3 API
-- [ ] Allow for alternate h3-py APIs such as [memview_int](https://github.com/uber/h3-py#h3apimemview_int)
 
 Additional possible directions
+- [ ] Allow for alternate h3-py APIs such as [memview_int](https://github.com/uber/h3-py#h3apimemview_int)
 - [ ] Performance improvements through [Cythonized h3-py](https://github.com/uber/h3-py/pull/147)
 - [ ] [Dask](https://github.com/dask/dask) integration trough [dask-geopandas](https://github.com/geopandas/dask-geopandas) (experimental as of now)

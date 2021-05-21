@@ -72,6 +72,7 @@ class H3Accessor:
         """
 
         def _to_polygon(h):
+            # TODO: Catch these exceptions in all places
             try:
                 return shapely.geometry.Polygon(h3.h3_to_geo_boundary(h, True))  # GeoPandas is lng/lat
             except (TypeError, H3CellError, ValueError):
@@ -120,8 +121,8 @@ class H3Accessor:
         """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
 
         Warning: Geographic information gets lost, returns a DataFrame
-        - if you wish to retain it, consider using `geo_to_h3` instead.
-        - if you with to add H3 geometry, chain with `h3_to_geo_boundary`
+            - if you wish to retain it, consider using `geo_to_h3` instead.
+            - if you with to add H3 geometry, chain with `h3_to_geo_boundary`
 
         pd.DataFrame: uses `lat_col` and `lng_col` (default `lat` and `lng`)
         gpd.GeoDataFrame: uses `geometry`
