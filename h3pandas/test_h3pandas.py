@@ -47,8 +47,8 @@ def basic_geodataframe_with_values(basic_geodataframe):
 def indexed_dataframe(basic_dataframe):
     """DataFrame with lat, lng and resolution 9 H3 index"""
     return (basic_dataframe
-            .assign(h3_9=['891e3097383ffff', '891e2659c2fffff'])
-            .set_index('h3_9'))
+            .assign(h3_09=['891e3097383ffff', '891e2659c2fffff'])
+            .set_index('h3_09'))
 
 
 @pytest.fixture
@@ -72,8 +72,8 @@ def h3_geodataframe_with_values(h3_dataframe_with_values):
 def test_geo_to_h3(basic_dataframe):
     result = basic_dataframe.h3.geo_to_h3(9)
     expected = (basic_dataframe
-                .assign(h3_9=['891e3097383ffff', '891e2659c2fffff'])
-                .set_index('h3_9'))
+                .assign(h3_09=['891e3097383ffff', '891e2659c2fffff'])
+                .set_index('h3_09'))
 
     pd.testing.assert_frame_equal(expected, result)
 
@@ -81,8 +81,8 @@ def test_geo_to_h3(basic_dataframe):
 def test_geo_to_h3_geo(basic_geodataframe):
     result = basic_geodataframe.h3.geo_to_h3(9)
     expected = (basic_geodataframe
-                .assign(h3_9=['891e3097383ffff', '891e2659c2fffff'])
-                .set_index('h3_9'))
+                .assign(h3_09=['891e3097383ffff', '891e2659c2fffff'])
+                .set_index('h3_09'))
 
     pd.testing.assert_frame_equal(expected, result)
 
@@ -124,7 +124,7 @@ def test_h3_to_geo_boundary_wrong_index(indexed_dataframe):
 def test_h3_to_parent(h3_dataframe_with_values):
     h3_parent = '811f3ffffffffff'
     result = h3_dataframe_with_values.h3.h3_to_parent(1)
-    expected = h3_dataframe_with_values.assign(h3_parent=h3_parent)
+    expected = h3_dataframe_with_values.assign(h3_01_parent=h3_parent)
 
     pd.testing.assert_frame_equal(expected, result)
 
@@ -147,16 +147,16 @@ def test_h3_get_resolution_index_only(h3_dataframe_with_values):
 
 def test_geo_to_h3_aggregate(basic_dataframe_with_values):
     result = basic_dataframe_with_values.h3.geo_to_h3_aggregate(1)
-    expected = (pd.DataFrame({'h3_1': ['811e3ffffffffff'], 'val': [2+5]})
-                .set_index('h3_1'))
+    expected = (pd.DataFrame({'h3_01': ['811e3ffffffffff'], 'val': [2+5]})
+                .set_index('h3_01'))
 
     pd.testing.assert_frame_equal(expected, result)
 
 
 def test_geo_to_h3_aggregate_geo(basic_geodataframe_with_values):
     result = basic_geodataframe_with_values.h3.geo_to_h3_aggregate(1)
-    expected = (pd.DataFrame({'h3_1': ['811e3ffffffffff'], 'val': [2+5]})
-                .set_index('h3_1'))
+    expected = (pd.DataFrame({'h3_01': ['811e3ffffffffff'], 'val': [2+5]})
+                .set_index('h3_01'))
 
     pd.testing.assert_frame_equal(expected, result)
 
@@ -164,7 +164,7 @@ def test_geo_to_h3_aggregate_geo(basic_geodataframe_with_values):
 def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
     result = h3_geodataframe_with_values.h3.h3_to_parent_aggregate(8)
     # TODO: Why does Pandas not preserve the order of groups here?
-    index = ['881f1d4811fffff', '881f1d4817fffff']
+    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08_parent')
     geometry = [Polygon(h3.h3_to_geo_boundary(h, True)) for h in index]
     expected = gpd.GeoDataFrame({'val': [5, 3]}, geometry=geometry,
                                 index=index, crs='epsg:4326')
@@ -173,7 +173,7 @@ def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
 
 
 def test_h3_to_parent_aggregate_no_geometry(h3_dataframe_with_values):
-    index = ['881f1d4811fffff', '881f1d4817fffff']
+    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08_parent')
     expected = pd.DataFrame({'val': [5, 3]}, index=index)
     result = h3_dataframe_with_values.h3.h3_to_parent_aggregate(8)
     pd.testing.assert_frame_equal(expected, result)

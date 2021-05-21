@@ -51,7 +51,7 @@ class H3Accessor:
         else:
             h3addresses = self._df.apply(lambda x: h3.geo_to_h3(x[lat_col], x[lng_col], resolution), axis=1)
 
-        colname = f'h3_{resolution}'
+        colname = self._format_resolution(resolution)
         assign_arg = {colname: h3addresses}
         df = self._df.assign(**assign_arg)
         if set_index:
@@ -83,7 +83,7 @@ class H3Accessor:
 
     def h3_to_parent(self,
                      resolution: int) -> AnyDataFrame:
-        """Adds the column `h3_parent` containing the parent of each H3 address. Assumes H3 index.
+        """Adds a column containing the parent of each H3 address. Assumes H3 index.
 
         Parameters
         ----------
@@ -92,10 +92,11 @@ class H3Accessor:
 
         Returns
         -------
-        (Geo)DataFrame with `h3_parent` column added
+        (Geo)DataFrame with H3 parent address column added
         """
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
-        return self._df.assign(h3_parent=parent_h3addresses)
+        kwargs_assign = {self._format_resolution(resolution, True): parent_h3addresses}
+        return self._df.assign(**kwargs_assign)
 
     def h3_get_resolution(self) -> AnyDataFrame:
         """Adds the column `h3_resolution` containing the resolution of each H3 address. Assumes H3 index.
@@ -142,8 +143,9 @@ class H3Accessor:
         DataFrame aggregated by H3 address into which each row's point falls
         """
         return pd.DataFrame(self.geo_to_h3(resolution, lat_col, lng_col, False)
-                            .agg(operation)
-                            .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore'))
+                            .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore')
+                            .groupby(self._format_resolution(resolution))
+                            .agg(operation))
 
     def h3_to_parent_aggregate(self,
                                resolution: int,
@@ -164,11 +166,19 @@ class H3Accessor:
         has_geometry = 'geometry' in self._df.columns
 
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
+        h3_parent_column = self._format_resolution(resolution, True)
+        kwargs_assign = {h3_parent_column: parent_h3addresses}
         grouped = (self._df
-                   .groupby(parent_h3addresses)[[c for c in self._df.columns if c != 'geometry']]
+                   .assign(**kwargs_assign)
+                   .groupby(h3_parent_column)[[c for c in self._df.columns if c != 'geometry']]
                    .agg(operation))
 
         if has_geometry:
             return grouped.h3.h3_to_geo_boundary()
         else:
             return grouped
+
+
+    @staticmethod
+    def _format_resolution(resolution: int, parent: bool = False) -> str:
+        return f'h3_{str(resolution).zfill(2)}' + ('_parent' if parent else '')
