@@ -124,7 +124,7 @@ def test_h3_to_geo_boundary_wrong_index(indexed_dataframe):
 def test_h3_to_parent(h3_dataframe_with_values):
     h3_parent = '811f3ffffffffff'
     result = h3_dataframe_with_values.h3.h3_to_parent(1)
-    expected = h3_dataframe_with_values.assign(h3_01_parent=h3_parent)
+    expected = h3_dataframe_with_values.assign(h3_01=h3_parent)
 
     pd.testing.assert_frame_equal(expected, result)
 
@@ -164,7 +164,7 @@ def test_geo_to_h3_aggregate_geo(basic_geodataframe_with_values):
 def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
     result = h3_geodataframe_with_values.h3.h3_to_parent_aggregate(8)
     # TODO: Why does Pandas not preserve the order of groups here?
-    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08_parent')
+    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08')
     geometry = [Polygon(h3.h3_to_geo_boundary(h, True)) for h in index]
     expected = gpd.GeoDataFrame({'val': [5, 3]}, geometry=geometry,
                                 index=index, crs='epsg:4326')
@@ -173,7 +173,7 @@ def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
 
 
 def test_h3_to_parent_aggregate_no_geometry(h3_dataframe_with_values):
-    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08_parent')
+    index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08')
     expected = pd.DataFrame({'val': [5, 3]}, index=index)
     result = h3_dataframe_with_values.h3.h3_to_parent_aggregate(8)
     pd.testing.assert_frame_equal(expected, result)

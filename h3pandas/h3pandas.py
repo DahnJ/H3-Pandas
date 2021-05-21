@@ -95,7 +95,7 @@ class H3Accessor:
         (Geo)DataFrame with H3 parent address column added
         """
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
-        kwargs_assign = {self._format_resolution(resolution, True): parent_h3addresses}
+        kwargs_assign = {self._format_resolution(resolution): parent_h3addresses}
         return self._df.assign(**kwargs_assign)
 
     def h3_get_resolution(self) -> AnyDataFrame:
@@ -117,7 +117,7 @@ class H3Accessor:
                             lat_col: str = 'lat',
                             lng_col: str = 'lng',
                             operation: Union[dict, str, Callable] = 'sum') -> DataFrame:
-        """Adds H3 index to DataFrame. Groups points with the same index and performs `operation`
+        """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
 
         Warning: Geographic information gets lost, returns a DataFrame
         - if you wish to retain it, consider using `geo_to_h3` instead.
@@ -166,7 +166,7 @@ class H3Accessor:
         has_geometry = 'geometry' in self._df.columns
 
         parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
-        h3_parent_column = self._format_resolution(resolution, True)
+        h3_parent_column = self._format_resolution(resolution)
         kwargs_assign = {h3_parent_column: parent_h3addresses}
         grouped = (self._df
                    .assign(**kwargs_assign)
@@ -180,5 +180,5 @@ class H3Accessor:
 
 
     @staticmethod
-    def _format_resolution(resolution: int, parent: bool = False) -> str:
-        return f'h3_{str(resolution).zfill(2)}' + ('_parent' if parent else '')
+    def _format_resolution(resolution: int) -> str:
+        return f'h3_{str(resolution).zfill(2)}'
