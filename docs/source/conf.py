@@ -30,10 +30,8 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 
+              'sphinx.ext.viewcode', 'numpydoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -85,7 +83,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'furo'
+html_theme = "pydata_sphinx_theme"
 html_logo = '_static/logo-small.png'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -93,7 +91,7 @@ html_logo = '_static/logo-small.png'
 # documentation.
 #
 # html_theme_options = {
-#     "sidebar_hide_name": True,
+#     "sidebar_hide_name": False,
 # }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -169,6 +167,4 @@ texinfo_documents = [
      author, 'h3pandas', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
 
