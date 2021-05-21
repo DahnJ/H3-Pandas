@@ -16,8 +16,7 @@ class H3Accessor:
         self._df = df
 
     # H3 API
-    # These functions simply mirror the H3 API and apply H3 functions
-    # to all rows
+    # These functions simply mirror the H3 API and apply H3 functions # to all rows
 
     def geo_to_h3(self,
                   resolution: int,
@@ -67,7 +66,6 @@ class H3Accessor:
 
         resolutions = [h3.h3_get_resolution(h3address) for h3address in self._df.index]
         return self._df.assign(h3_resolution=resolutions)
-
 
     # Aggregate functions
     # These functions extend the API to provide a convenient way to aggregate the results by their H3 address
