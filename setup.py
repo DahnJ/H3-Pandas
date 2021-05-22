@@ -8,7 +8,7 @@ setup(
     author="Dahn",
     author_email="dahnjahn@gmail.com",
     url="https://github.com/DahnJ/H3-Pandas",
-    download_url="TODO",
+    download_url="https://github.com/DahnJ/H3-Pandas/archive/refs/tags/0.1.0-alpha.tar.gz",
     keywords=["python", "h3", "geospatial", "geopandas", "pandas", "integration",
               "hexagons-are-awesome"],
     classifiers=[
