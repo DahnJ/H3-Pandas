@@ -24,15 +24,10 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 
 ## Installation
 ### pip
-```bash
-pip install h3pandas
-```
+TODO
 
 ### conda
-```bash
-conda install-c conda-forge h3pandas
-```
-
+TODO
 
 
 ## Usage examples
