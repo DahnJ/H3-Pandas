@@ -24,7 +24,9 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 
 ## Installation
 ### pip
-TODO
+```bash
+pip install h3pandas
+```
 
 ### conda
 TODO
