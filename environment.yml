@@ -2,7 +2,7 @@ name: h3pandas-env
 channels: 
   - conda-forge
 dependencies:
-  - python=3.*
+  - python=3.8
   - shapely=1.7.*
   - h3-py=3.6.*
   - geopandas=0.9.*
