@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="h3pandas",
-    version="0.1.1-alpha",
+    version="0.1.1",
     license="MIT",
     description="Integration of H3 and GeoPandas",
     long_description=long_description,
@@ -16,7 +16,7 @@ setup(
     author="Dahn",
     author_email="dahnjahn@gmail.com",
     url="https://github.com/DahnJ/H3-Pandas",
-    download_url="https://github.com/DahnJ/H3-Pandas/archive/refs/tags/0.1.1-alpha.tar.gz",
+    download_url="https://github.com/DahnJ/H3-Pandas/archive/refs/tags/0.1.1.tar.gz",
     keywords=["python", "h3", "geospatial", "geopandas", "pandas", "integration",
               "hexagons-are-awesome"],
     classifiers=[
