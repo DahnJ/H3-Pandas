@@ -101,7 +101,7 @@ TODO
 ```
 
 ## API
-For a full API documentation and more usage examples, see the [documentation](http://nonexistant.link.so.far).
+For a full API documentation and more usage examples, see the [documentation](https://h3-pandas.readthedocs.io/en/latest/).
 
 ## Development
 This package is under active development, **suggestions and contributions are very welcome**!
