@@ -18,7 +18,7 @@ setup(
     url="https://github.com/DahnJ/H3-Pandas",
     download_url="https://github.com/DahnJ/H3-Pandas/archive/refs/tags/0.1.1.tar.gz",
     keywords=["python", "h3", "geospatial", "geopandas", "pandas", "integration",
-              "hexagons-are-awesome"],
+              "hexagons-are-bestagons"],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
