@@ -117,7 +117,7 @@ def test_h3_to_geo_boundary(indexed_dataframe):
 
 def test_h3_to_geo_boundary_wrong_index(indexed_dataframe):
     indexed_dataframe.index = [str(indexed_dataframe.index[0])] + ['invalid']
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         indexed_dataframe.h3.h3_to_geo_boundary()
 
 

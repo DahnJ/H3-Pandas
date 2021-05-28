@@ -5,9 +5,10 @@ import pandas as pd
 import geopandas as gpd
 
 from h3 import h3
-from h3 import H3CellError
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
+
+from .util.decorator import catch_invalid_h3_address
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
 
@@ -67,16 +68,13 @@ class H3Accessor:
 
         Raises
         ------
-        TypeError
+        ValueError
             When an invalid H3 address is encountered
         """
 
+        @catch_invalid_h3_address
         def _to_polygon(h):
-            # TODO: Catch these exceptions in all places
-            try:
-                return shapely.geometry.Polygon(h3.h3_to_geo_boundary(h, True))  # GeoPandas is lng/lat
-            except (TypeError, H3CellError, ValueError):
-                raise TypeError(f"H3 address was not recognized: {h}.")
+            return shapely.geometry.Polygon(h3.h3_to_geo_boundary(h, True))  # GeoPandas is lng/lat
 
         geometries = [_to_polygon(h3address) for h3address in self._df.index]
 
@@ -105,9 +103,14 @@ class H3Accessor:
         Returns
         -------
         Geo(DataFrame) with `h3_resolution` column added
+
+        Raises
+        ------
+        ValueError
+            When an invalid H3 address is encountered
         """
 
-        resolutions = [h3.h3_get_resolution(h3address) for h3address in self._df.index]
+        resolutions = [catch_invalid_h3_address(h3.h3_get_resolution)(h3address) for h3address in self._df.index]
         return self._df.assign(h3_resolution=resolutions)
 
     # Aggregate functions
@@ -163,10 +166,16 @@ class H3Accessor:
         Returns
         -------
         GeoDataFrame aggregated by the parent of each H3 address
+
+        Raises
+        ------
+        ValueError
+            When an invalid H3 address is encountered
         """
         has_geometry = 'geometry' in self._df.columns
 
-        parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
+        parent_h3addresses = [catch_invalid_h3_address(h3.h3_to_parent)(h3address, resolution)
+                              for h3address in self._df.index]
         h3_parent_column = self._format_resolution(resolution)
         kwargs_assign = {h3_parent_column: parent_h3addresses}
         grouped = (self._df
