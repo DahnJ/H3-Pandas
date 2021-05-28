@@ -28,7 +28,7 @@ setup(
     packages=find_packages(),
     setup_requires=[],
     install_requires=['geopandas', 'pandas', 'shapely', 'h3', 'numpy'],
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     extras_require={
         'test': ['pytest', 'pytest-cov', 'flake8'],
         'docs': ['sphinx', 'numpydoc', 'pytest-sphinx-theme']
