@@ -45,7 +45,7 @@ conda install -c dahn h3pandas
 
 ```python
 # Prepare data
->>> import pandas
+>>> import pandas as pd
 >>> import h3pandas
 >>> df = pd.DataFrame({'lat': [50, 51], 'lng': [14, 15]})
 ```
