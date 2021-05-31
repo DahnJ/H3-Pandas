@@ -11,6 +11,7 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2Fexample.ipynb)
 [![image](https://img.shields.io/pypi/v/h3pandas.svg)](https://pypi.python.org/pypi/h3pandas)
 [![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
+[![Anaconda-Server Badge](https://anaconda.org/dahn/h3pandas/badges/downloads.svg)](https://anaconda.org/dahn/h3pandas)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 &nbsp;
@@ -35,8 +36,12 @@ pip install h3pandas
 ```
 
 ### conda
-TODO
-
+```bash
+conda install -c dahn h3pandas
+```
+Since most h3pandas' dependencies are on `conda-forge`, 
+make sure it's on your channels list (`conda config --show channels`)
+or add it by  `conda config --add channels conda-forge`.
 
 ## Usage examples
 
