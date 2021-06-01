@@ -10,3 +10,4 @@ dependencies:
   - pytest=6.2.*
   - pytest-cov=2.12.*
   - matplotlib=3.3.*
+  - typing-extensions=3.10.*

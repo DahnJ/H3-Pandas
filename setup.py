@@ -31,10 +31,10 @@ setup(
     ],
     packages=find_packages(),
     setup_requires=[],
-    install_requires=['geopandas', 'pandas', 'shapely', 'h3', 'numpy'],
+    install_requires=['geopandas', 'pandas', 'shapely', 'h3', 'numpy', 'typing-extensions'],
     python_requires=">=3.6",
     extras_require={
         'test': ['pytest', 'pytest-cov', 'flake8'],
-        'docs': ['sphinx', 'numpydoc', 'pytest-sphinx-theme']
+        'docs': ['sphinx', 'numpydoc', 'pytest-sphinx-theme', 'typing-extensions']
     },
 )

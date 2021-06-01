@@ -1,4 +1,9 @@
-from typing import Union, Callable, Literal
+from typing import Union, Callable
+# Literal is not supported by Python <3.8
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import shapely
 import pandas as pd
