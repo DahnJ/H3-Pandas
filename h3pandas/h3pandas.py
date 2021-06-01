@@ -1,4 +1,4 @@
-from typing import Union, Callable
+from typing import Union, Callable, Literal
 
 import shapely
 import pandas as pd
@@ -8,7 +8,7 @@ from h3 import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
-from .util.decorator import catch_invalid_h3_address
+from .util.decorator import catch_invalid_h3_address, doc_standard, wrapped_partial
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
 
@@ -18,7 +18,7 @@ class H3Accessor:
         self._df = df
 
     # H3 API
-    # These functions simply mirror the H3 API and apply H3 functions # to all rows
+    # These methods simply mirror the H3 API and apply H3 functions to all rows
 
     def geo_to_h3(self,
                   resolution: int,
@@ -59,6 +59,26 @@ class H3Accessor:
             return df.set_index(colname)
         return df
 
+
+    # TODO: Test
+    def h3_to_geo(self) -> GeoDataFrame:
+        """Add `geometry` with centroid of each H3 address to the DataFrame. Assumes H3 index.
+
+        Returns
+        -------
+        GeoDataFrame with Point geometry
+
+        Raises
+        ------
+        ValueError
+            When an invalid H3 address is encountered
+        """
+        return self._apply_index_assign(h3.h3_to_geo,
+                                        'geometry',
+                                        lambda x: shapely.geometry.Point(x),
+                                        lambda x: gpd.GeoDataFrame(x, crs='epsg:4326'))
+
+
     def h3_to_geo_boundary(self) -> GeoDataFrame:
         """Add `geometry` with H3 hexagons to the DataFrame. Assumes H3 index.
 
@@ -71,50 +91,69 @@ class H3Accessor:
         ValueError
             When an invalid H3 address is encountered
         """
+        return self._apply_index_assign(wrapped_partial(h3.h3_to_geo_boundary, geo_json=True),
+                                        'geometry',
+                                        lambda x: shapely.geometry.Polygon(x),
+                                        lambda x: gpd.GeoDataFrame(x, crs='epsg:4326'))
 
-        @catch_invalid_h3_address
-        def _to_polygon(h):
-            return shapely.geometry.Polygon(h3.h3_to_geo_boundary(h, True))  # GeoPandas is lng/lat
 
-        geometries = [_to_polygon(h3address) for h3address in self._df.index]
+    @doc_standard('h3_resolution', 'containing the resolution of each H3 address')
+    def h3_get_resolution(self) -> AnyDataFrame:
+        return self._apply_index_assign(h3.h3_get_resolution, 'h3_resolution')
 
-        return gpd.GeoDataFrame(self._df, geometry=geometries, crs='epsg:4326')
 
-    def h3_to_parent(self,
-                     resolution: int) -> AnyDataFrame:
-        """Adds a column containing the parent of each H3 address. Assumes H3 index.
+    # TODO: test
+    @doc_standard('h3_base_cell', 'containing the base cell of each H3 address')
+    def h3_get_base_cell(self):
+        return self._apply_index_assign(h3.h3_get_base_cell, 'h3_base_cell')
 
+
+    # TODO: test
+    @doc_standard('h3_is_valid', 'containing the validity of each H3 address')
+    def h3_is_valid(self):
+        return self._apply_index_assign(h3.h3_get_base_cell, 'h3_base_cell')
+
+
+    @doc_standard('h3_{resolution}', 'containing the parent of each H3 address')
+    def h3_to_parent(self, resolution: int = None) -> AnyDataFrame:
+        """
         Parameters
         ----------
-        resolution : int
-            H3 resolution
-
-        Returns
-        -------
-        (Geo)DataFrame with H3 parent address column added
+        resolution : int or None
+            H3 resolution. If None, then returns the direct parent of each H3 cell.
         """
-        parent_h3addresses = [h3.h3_to_parent(h3address, resolution) for h3address in self._df.index]
-        kwargs_assign = {self._format_resolution(resolution): parent_h3addresses}
-        return self._df.assign(**kwargs_assign)
+        # TODO: Test `h3_parent` case
+        column = self._format_resolution(resolution) if resolution else 'h3_parent'
+        return self._apply_index_assign(wrapped_partial(h3.h3_to_parent, res=resolution), column)
 
-    def h3_get_resolution(self) -> AnyDataFrame:
-        """Adds the column `h3_resolution` containing the resolution of each H3 address. Assumes H3 index.
 
-        Returns
-        -------
-        Geo(DataFrame) with `h3_resolution` column added
-
-        Raises
-        ------
-        ValueError
-            When an invalid H3 address is encountered
+    # TODO: Test
+    @doc_standard('h3_center_child', 'containing the center child of each H3 address')
+    def h3_to_center_child(self, resolution: int = None) -> AnyDataFrame:
         """
+        Parameters
+        ----------
+        resolution : int or None
+            H3 resolution. If none, then returns the child of resolution directly below that of each H3 cell
+        """
+        self._apply_index_assign(wrapped_partial(h3.h3_to_center_child, res=resolution), 'h3_center_child')
 
-        resolutions = [catch_invalid_h3_address(h3.h3_get_resolution)(h3address) for h3address in self._df.index]
-        return self._df.assign(h3_resolution=resolutions)
 
-    # Aggregate functions
-    # These functions extend the API to provide a convenient way to aggregate the results by their H3 address
+    # TODO: Test
+    @doc_standard('h3_cell_area', 'containing the area of each H3 address')
+    def h3_cell_area(self, unit: Literal['km^2', 'm^2', 'rads^2'] = 'km^2') -> AnyDataFrame:
+        """
+        Parameters
+        ----------
+        unit : str, options: 'km^2', 'm^2', or 'rads^2'
+            Unit for area result. Default: 'km^2`
+        """
+        self._apply_index_assign(wrapped_partial(h3.cell_area, unit=unit), 'h3_cell_area')
+
+
+
+    # Aggregate methods
+    # These methods extend the API to provide a convenient way to aggregate the results by their H3 address
 
     def geo_to_h3_aggregate(self,
                             resolution: int,
@@ -150,6 +189,7 @@ class H3Accessor:
                             .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore')
                             .groupby(self._format_resolution(resolution))
                             .agg(operation))
+
 
     def h3_to_parent_aggregate(self,
                                resolution: int,
@@ -187,6 +227,36 @@ class H3Accessor:
             return grouped.h3.h3_to_geo_boundary()
         else:
             return grouped
+
+
+    # Private methods
+
+    def _apply_index_assign(self,
+                            func: Callable,
+                            column: str,
+                            processor: Callable = lambda x: x,
+                            finalizer: Callable = lambda x: x):
+        """Helper method. Applies `func` to index and assigns the result to `column`.
+
+        Parameters
+        ----------
+        func : Callable
+            single-argument function to be applied to each H3 address
+        column : str
+            name of the resulting column
+        processor : Callable
+            (Optional) further processes the result of func. Default: identity
+        finalizer : Callable
+            (Optional) further processes the resulting dataframe. Default: identity
+
+        Returns
+        -------
+        Dataframe with column `column` containing the result of `func`.
+        """
+        func = catch_invalid_h3_address(func)
+        result = [processor(func(h3address)) for h3address in self._df.index]
+        assign_args = {column: result}
+        return finalizer(self._df.assign(**assign_args))
 
 
     @staticmethod

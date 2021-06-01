@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import wraps, partial, update_wrapper
 from typing import Callable
 from h3 import H3CellError
 
@@ -31,6 +31,44 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
             raise ValueError(message)
 
     return safe_f
+
+
+# TODO: Test
+def doc_standard(column: str, description: str) -> Callable:
+    """Wrapper to provide a standard apply-to-H3-index docstring"""
+
+
+    def doc_decorator(f):
+        @wraps(f)
+        def doc_f(*args, **kwargs):
+            return f(*args, **kwargs)
+
+        parameters = f.__doc__ or ''
+
+        doc = f"""Adds the column `{column}` {description}. Assumes H3 index.
+        {parameters}
+        Returns
+        -------
+        Geo(DataFrame) with `{column}` column added
+
+        Raises
+        ------
+        ValueError
+            When an invalid H3 address is encountered
+        """
+
+        doc_f.__doc__ = doc
+        return doc_f
+
+    return doc_decorator
+
+
+# TODO: Doesn't belong here, not a decorator
+def wrapped_partial(func, *args, **kwargs):
+    """Properly wrapped partial function"""
+    partial_func = partial(func, *args, **kwargs)
+    update_wrapper(partial_func, func)
+    return partial_func
 
 
 def _print_signature(*args, **kwargs):
