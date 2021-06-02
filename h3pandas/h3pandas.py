@@ -80,7 +80,7 @@ class H3Accessor:
         """
         return self._apply_index_assign(h3.h3_to_geo,
                                         'geometry',
-                                        lambda x: shapely.geometry.Point(x),
+                                        lambda x: shapely.geometry.Point(reversed(x)),
                                         lambda x: gpd.GeoDataFrame(x, crs='epsg:4326'))
 
 
@@ -141,7 +141,7 @@ class H3Accessor:
         resolution : int or None
             H3 resolution. If none, then returns the child of resolution directly below that of each H3 cell
         """
-        self._apply_index_assign(wrapped_partial(h3.h3_to_center_child, res=resolution), 'h3_center_child')
+        return self._apply_index_assign(wrapped_partial(h3.h3_to_center_child, res=resolution), 'h3_center_child')
 
 
     # TODO: Test
@@ -153,7 +153,7 @@ class H3Accessor:
         unit : str, options: 'km^2', 'm^2', or 'rads^2'
             Unit for area result. Default: 'km^2`
         """
-        self._apply_index_assign(wrapped_partial(h3.cell_area, unit=unit), 'h3_cell_area')
+        return self._apply_index_assign(wrapped_partial(h3.cell_area, unit=unit), 'h3_cell_area')
 
 
 
