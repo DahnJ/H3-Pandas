@@ -162,8 +162,9 @@ class H3Accessor:
 
     def geo_to_h3_aggregate(self,
                             resolution: int,
+                            operation: Union[dict, str, Callable] = 'sum',
                             lat_col: str = 'lat',
-                            lng_col: str = 'lng',
+                            lng_col: str = 'lng' ) -> DataFrame:
                             operation: Union[dict, str, Callable] = 'sum') -> DataFrame:
         """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
 
@@ -178,6 +179,8 @@ class H3Accessor:
         ----------
         resolution : int
             H3 resolution
+        operation : Union[dict, str, Callable]
+            Argument passed to DataFrame's `agg` method, default 'sum'
         lat_col : str
             Name of the latitude column (if used), default 'lat'
         lng_col : str
