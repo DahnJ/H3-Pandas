@@ -1,4 +1,4 @@
-from functools import wraps, partial, update_wrapper
+from functools import wraps
 from typing import Callable
 from h3 import H3CellError
 
@@ -62,13 +62,6 @@ def doc_standard(column: str, description: str) -> Callable:
 
     return doc_decorator
 
-
-# TODO: Doesn't belong here, not a decorator
-def wrapped_partial(func, *args, **kwargs):
-    """Properly wrapped partial function"""
-    partial_func = partial(func, *args, **kwargs)
-    update_wrapper(partial_func, func)
-    return partial_func
 
 
 def _print_signature(*args, **kwargs):
