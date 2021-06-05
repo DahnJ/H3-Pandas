@@ -1,4 +1,4 @@
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon, LineString
 import pytest
 from h3 import h3
 from .shapely import polyfill
@@ -24,6 +24,11 @@ def multipolygon(polygon, polygon_b):
     return MultiPolygon([polygon, polygon_b])
 
 
+@pytest.fixture
+def line():
+    return LineString([(0, 0), (1, 0), (1, 1)])
+
+
 
 def test_polyfill_polygon(polygon):
     expected = set(['811e3ffffffffff'])
@@ -37,8 +42,13 @@ def test_polyfill_multipolygon(multipolygon):
     assert expected == result
 
 
-def test_polyfill_polygin_with_hole(polygon_with_hole):
+def test_polyfill_polygon_with_hole(polygon_with_hole):
     expected = set()
     result = polyfill(polygon_with_hole, 1)
     assert expected == result
+
+
+def test_polyfill_wrong_type(line):
+    with pytest.raises(TypeError, match=".*Unknown type.*"):
+        polyfill(line, 1)
 
