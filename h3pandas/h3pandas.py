@@ -1,10 +1,11 @@
-from typing import Union, Callable
+from typing import Union, Callable, Sequence
 # Literal is not supported by Python <3.8
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
+import numpy as np
 import shapely
 import pandas as pd
 import geopandas as gpd
@@ -13,13 +14,17 @@ from h3 import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
+from .const import COLUMN_H3_POLYFILL
 from .util.decorator import catch_invalid_h3_address, doc_standard
 from .util.functools import wrapped_partial
+from .util.shapely import polyfill
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
 
 @pd.api.extensions.register_dataframe_accessor('h3')
 class H3Accessor:
+
+
     def __init__(self, df: DataFrame):
         self._df = df
 
@@ -120,6 +125,35 @@ class H3Accessor:
         return self._apply_index_assign(h3.h3_get_base_cell, 'h3_base_cell')
 
 
+    # TODO: Test
+    # TODO: Consider 'explode' option (same goes for all list-making methods)
+    @doc_standard('h3_k_ring', 'containing a list H3 addresses within a distance of `k`')
+    def k_ring(self, k: int = 1) -> AnyDataFrame:
+        """
+        Parameters
+        ----------
+        k : int
+            the distance from the origin H3 address. Default k = 1
+        """
+        return self._apply_index_assign(wrapped_partial(h3.k_ring, k=k), 'h3_k_ring', lambda x: list(x))
+
+    # TODO: Test
+    # TODO: Doc
+    @doc_standard('h3_k_ring', 'containing a list H3 addresses forming a hollow hexagonal ring'
+                               'at a distance `k`')
+    def hex_ring(self,
+                 k: int = 1,
+                 explode: bool = False) -> AnyDataFrame:
+        """
+        Parameters
+        ----------
+        k : int
+            the distance from the origin H3 address. Default k = 1
+        explode : bool
+        """
+        return self._apply_index_assign(wrapped_partial(h3.hex_ring, k=k), 'h3_hex_ring', lambda x: list(x))
+
+
     @doc_standard('h3_{resolution}', 'containing the parent of each H3 address')
     def h3_to_parent(self, resolution: int = None) -> AnyDataFrame:
         """
@@ -142,7 +176,34 @@ class H3Accessor:
         resolution : int or None
             H3 resolution. If none, then returns the child of resolution directly below that of each H3 cell
         """
-        return self._apply_index_assign(wrapped_partial(h3.h3_to_center_child, res=resolution), 'h3_center_child')
+        return self._apply_index_assign(wrapped_partial(h3.h3_to_center_child, res=resolution),
+                                        'h3_center_child')
+
+
+    # TODO: Test
+    # TODO: Geometry test?
+    @doc_standard(COLUMN_H3_POLYFILL,
+                  'containing a list H3 addresses whose centroid falls into the Polygon')
+    def polyfill(self,
+                 resolution: int,
+                 explode: bool = False) -> AnyDataFrame:
+        """
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        explode : bool
+
+        """
+
+        def func(geometry): return list(polyfill(geometry, resolution, True))
+        if explode:
+            def func(geometry): return pd.Series(func(geometry))
+
+        result = self._df.geometry.apply(func)
+        if not explode:
+            result = result.rename('h3_polyfill')
+        return self._df.join(result)
 
 
     # TODO: Test
@@ -157,7 +218,7 @@ class H3Accessor:
         return self._apply_index_assign(wrapped_partial(h3.cell_area, unit=unit), 'h3_cell_area')
 
 
-
+    # TODO: The semantics of this are no longer correct. Consider a different naming/description
     # Aggregate methods
     # These methods extend the API to provide a convenient way to aggregate the results by their H3 address
 
@@ -166,7 +227,6 @@ class H3Accessor:
                             operation: Union[dict, str, Callable] = 'sum',
                             lat_col: str = 'lat',
                             lng_col: str = 'lng' ) -> DataFrame:
-                            operation: Union[dict, str, Callable] = 'sum') -> DataFrame:
         """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
 
         Warning: Geographic information gets lost, returns a DataFrame
@@ -186,8 +246,6 @@ class H3Accessor:
             Name of the latitude column (if used), default 'lat'
         lng_col : str
             Name of the longitude column (if used), default 'lng'
-        operation : Union[dict, str, Callable]
-            Argument passed to DataFrame's `agg` method, default 'sum'
 
 
         Returns
@@ -221,6 +279,7 @@ class H3Accessor:
         ValueError
             When an invalid H3 address is encountered
         """
+        # TODO: Unified has_geometry behaviour
         has_geometry = 'geometry' in self._df.columns
 
         parent_h3addresses = [catch_invalid_h3_address(h3.h3_to_parent)(h3address, resolution)
@@ -236,6 +295,83 @@ class H3Accessor:
             return grouped.h3.h3_to_geo_boundary()
         else:
             return grouped
+
+
+    # TODO: Doc
+    # TODO: Test
+    # TODO: Test, k=3 should be same as [1,1,1,1,1]
+    # TODO: Will likely fail in many cases (what are the existing columns?)
+    # TODO: New cell behaviour
+    # TODO: Re-do properly
+    def k_ring_smoothing(self,
+                         k: int,
+                         weights: Sequence[float] = None) -> AnyDataFrame:
+        """Experimental.
+
+        Parameters
+        ----------
+        k : int
+        weights : Sequence[float] of length k
+
+        Returns
+        -------
+
+        """
+        if weights is None:
+            return (self._df
+                    .apply(lambda x: pd.Series(list(h3.k_ring(x.name, k))), axis=1).stack()
+                    .to_frame('h3_k_ring').reset_index(1, drop=True)
+                    .join(self._df)
+                    .groupby('h3_k_ring').sum().divide((1 + 3 * k * (k + 1))))
+
+        weights = np.array(weights)
+        multipliers = np.array([1] + [i * 6 for i in range(1, len(weights))])
+        weights = weights / (weights * multipliers).sum()
+
+        # This should be exploded hex ring
+        def weighted_hex_ring(df, k, normalized_weight):
+            return (df
+                    .apply(lambda x: pd.Series(list(h3.hex_ring(x.name, k))), axis=1).stack()
+                    .to_frame('h3_hex_ring').reset_index(1, drop=True)
+                    .join(df)
+                    .h3._multiply_numeric(normalized_weight))
+
+        return (pd.concat([weighted_hex_ring(self._df, i, weights[i]) for i in range(len(weights))])
+                .groupby('h3_hex_ring')
+                .sum()
+                .h3.h3_to_geo_boundary())
+
+
+
+
+
+
+
+
+    # TODO: Test
+    # TODO: Implement
+    # TODO: Provide a warning if sums don't agree or sth like that? For uncovered polygons
+    def polyfill_resample(self, resolution: int) -> AnyDataFrame:
+        """Experimental
+
+        Parameters
+        ----------
+        resolution : int
+
+        Returns
+        -------
+
+        """
+
+        return (self._df
+                .h3.polyfill(resolution)
+                [COLUMN_H3_POLYFILL]
+                .apply(lambda x: pd.Series(x)).stack()
+                .to_frame(COLUMN_H3_POLYFILL).reset_index(level=1, drop=True)
+                .join(self._df)
+                .reset_index()
+                .set_index(COLUMN_H3_POLYFILL)
+                .h3.h3_to_geo_boundary())
 
 
     # Private methods
@@ -266,6 +402,13 @@ class H3Accessor:
         result = [processor(func(h3address)) for h3address in self._df.index]
         assign_args = {column: result}
         return finalizer(self._df.assign(**assign_args))
+
+
+    # TODO: types, doc, ..
+    def _multiply_numeric(self, value):
+        columns_numeric = self._df.select_dtypes(include=['number']).columns
+        assign_args = {column: self._df[column].multiply(value) for column in columns_numeric}
+        return self._df.assign(**assign_args)
 
 
     @staticmethod
