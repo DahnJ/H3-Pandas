@@ -34,7 +34,7 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
 
 
 # TODO: Test
-def doc_standard(column: str, description: str) -> Callable:
+def doc_standard(column_name: str, description: str) -> Callable:
     """Wrapper to provide a standard apply-to-H3-index docstring"""
 
 
@@ -45,11 +45,11 @@ def doc_standard(column: str, description: str) -> Callable:
 
         parameters = f.__doc__ or ''
 
-        doc = f"""Adds the column `{column}` {description}. Assumes H3 index.
+        doc = f"""Adds the column `{column_name}` {description}. Assumes H3 index.
         {parameters}
         Returns
         -------
-        Geo(DataFrame) with `{column}` column added
+        Geo(DataFrame) with `{column_name}` column added
 
         Raises
         ------
