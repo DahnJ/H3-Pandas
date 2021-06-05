@@ -13,7 +13,8 @@ from h3 import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
-from .util.decorator import catch_invalid_h3_address, doc_standard, wrapped_partial
+from .util.decorator import catch_invalid_h3_address, doc_standard
+from .util.functools import wrapped_partial
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
 
