@@ -135,6 +135,14 @@ def test_h3_get_resolution(h3_dataframe_with_values):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_h3_is_valid(indexed_dataframe):
+    indexed_dataframe.index = [str(indexed_dataframe.index[0])] + ['invalid']
+    expected = indexed_dataframe.assign(h3_is_valid=[True, False])
+    result = indexed_dataframe.h3.h3_is_valid()
+    pd.testing.assert_frame_equal(expected, result)
+
+
+
 def test_h3_get_resolution_index_only(h3_dataframe_with_values):
     del h3_dataframe_with_values['val']
     expected = h3_dataframe_with_values.assign(h3_resolution=9)

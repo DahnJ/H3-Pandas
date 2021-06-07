@@ -122,7 +122,7 @@ class H3Accessor:
     # TODO: test
     @doc_standard('h3_is_valid', 'containing the validity of each H3 address')
     def h3_is_valid(self):
-        return self._apply_index_assign(h3.h3_get_base_cell, 'h3_base_cell')
+        return self._apply_index_assign(h3.h3_is_valid, 'h3_is_valid')
 
 
     # TODO: Test
