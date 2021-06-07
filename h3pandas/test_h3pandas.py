@@ -145,6 +145,12 @@ def test_h3_to_center_child(indexed_dataframe):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_cell_area(indexed_dataframe):
+    expected = indexed_dataframe.assign(h3_cell_area=[0.09937867173389912, 0.09775508251476996])
+    result = indexed_dataframe.h3.cell_area()
+    pd.testing.assert_frame_equal(expected, result)
+
+
 def test_h3_get_resolution(h3_dataframe_with_values):
     expected = h3_dataframe_with_values.assign(h3_resolution=9)
     result = h3_dataframe_with_values.h3.h3_get_resolution()

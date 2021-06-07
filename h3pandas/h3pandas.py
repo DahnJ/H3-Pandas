@@ -201,9 +201,8 @@ class H3Accessor:
         return self._df.join(result)
 
 
-    # TODO: Test
     @doc_standard('h3_cell_area', 'containing the area of each H3 address')
-    def h3_cell_area(self, unit: Literal['km^2', 'm^2', 'rads^2'] = 'km^2') -> AnyDataFrame:
+    def cell_area(self, unit: Literal['km^2', 'm^2', 'rads^2'] = 'km^2') -> AnyDataFrame:
         """
         Parameters
         ----------
