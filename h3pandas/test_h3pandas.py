@@ -92,6 +92,16 @@ def test_geo_to_h3_polygon(basic_geodataframe_polygon):
         basic_geodataframe_polygon.h3.geo_to_h3(9)
 
 
+def test_h3_to_geo(indexed_dataframe):
+    lats = [50.000551554902586, 51.000121447274736]
+    lngs = [14.000372151097624, 14.999768926738376]
+    geometry = gpd.points_from_xy(x=lngs, y=lats, crs='epsg:4326')
+    expected = gpd.GeoDataFrame(indexed_dataframe, geometry=geometry)
+    result = indexed_dataframe.h3.h3_to_geo()
+    pd.testing.assert_frame_equal(expected, result)
+
+
+
 def test_h3_to_geo_boundary(indexed_dataframe):
     h1 = ((13.997875502962215, 50.00126530465277),
           (13.997981974191347, 49.99956539765703),
@@ -129,6 +139,12 @@ def test_h3_to_parent(h3_dataframe_with_values):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_h3_to_center_child(indexed_dataframe):
+    expected = indexed_dataframe.assign(h3_center_child=['8a1e30973807fff', '8a1e2659c2c7fff'])
+    result = indexed_dataframe.h3.h3_to_center_child()
+    pd.testing.assert_frame_equal(expected, result)
+
+
 def test_h3_get_resolution(h3_dataframe_with_values):
     expected = h3_dataframe_with_values.assign(h3_resolution=9)
     result = h3_dataframe_with_values.h3.h3_get_resolution()
@@ -138,6 +154,44 @@ def test_h3_get_resolution(h3_dataframe_with_values):
 def test_h3_get_base_cell(indexed_dataframe):
     expected = indexed_dataframe.assign(h3_base_cell=[15, 15])
     result = indexed_dataframe.h3.h3_get_base_cell()
+    pd.testing.assert_frame_equal(expected, result)
+
+
+def test_h3_0_ring(indexed_dataframe):
+    expected = indexed_dataframe.assign(h3_k_ring=[[h] for h in indexed_dataframe.index])
+    result = indexed_dataframe.h3.k_ring(0)
+    pd.testing.assert_frame_equal(expected, result)
+
+
+def test_h3_k_ring(indexed_dataframe):
+    expected_indices = [
+        {'891e3097383ffff', '891e3097387ffff', '891e309738bffff', '891e309738fffff',
+         '891e3097393ffff', '891e3097397ffff', '891e309739bffff'},
+        {'891e2659893ffff', '891e2659897ffff', '891e2659c23ffff', '891e2659c27ffff',
+         '891e2659c2bffff', '891e2659c2fffff', '891e2659d5bffff'}
+    ]
+    expected = indexed_dataframe.assign(h3_k_ring=expected_indices)
+    result = indexed_dataframe.h3.k_ring()
+    result['h3_k_ring'] = result['h3_k_ring'].apply(set)  # Cast to set for testing
+    pd.testing.assert_frame_equal(expected, result)
+
+
+def test_h3_0_hex_ring(indexed_dataframe):
+    expected = indexed_dataframe.assign(h3_hex_ring=[[h] for h in indexed_dataframe.index])
+    result = indexed_dataframe.h3.hex_ring(0)
+    pd.testing.assert_frame_equal(expected, result)
+
+
+def test_h3_hex_ring(indexed_dataframe):
+    expected_indices = [
+        {'891e3097387ffff', '891e309738bffff', '891e309738fffff',
+         '891e3097393ffff', '891e3097397ffff', '891e309739bffff'},
+        {'891e2659893ffff', '891e2659897ffff', '891e2659c23ffff',
+         '891e2659c27ffff', '891e2659c2bffff', '891e2659d5bffff'}
+    ]
+    expected = indexed_dataframe.assign(h3_hex_ring=expected_indices)
+    result = indexed_dataframe.h3.hex_ring()
+    result['h3_hex_ring'] = result['h3_hex_ring'].apply(set)  # Cast to set for testing
     pd.testing.assert_frame_equal(expected, result)
 
 

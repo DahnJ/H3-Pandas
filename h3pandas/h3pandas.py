@@ -71,7 +71,6 @@ class H3Accessor:
         return df
 
 
-    # TODO: Test
     def h3_to_geo(self) -> GeoDataFrame:
         """Add `geometry` with centroid of each H3 address to the DataFrame. Assumes H3 index.
 
@@ -123,7 +122,6 @@ class H3Accessor:
         return self._apply_index_assign(h3.h3_is_valid, 'h3_is_valid')
 
 
-    # TODO: Test
     # TODO: Consider 'explode' option (same goes for all list-making methods)
     @doc_standard('h3_k_ring', 'containing a list H3 addresses within a distance of `k`')
     def k_ring(self, k: int = 1) -> AnyDataFrame:
@@ -135,8 +133,8 @@ class H3Accessor:
         """
         return self._apply_index_assign(wrapped_partial(h3.k_ring, k=k), 'h3_k_ring', lambda x: list(x))
 
-    # TODO: Test
     # TODO: Doc
+    # TODO: Explode
     @doc_standard('h3_k_ring', 'containing a list H3 addresses forming a hollow hexagonal ring'
                                'at a distance `k`')
     def hex_ring(self,
@@ -165,7 +163,6 @@ class H3Accessor:
         return self._apply_index_assign(wrapped_partial(h3.h3_to_parent, res=resolution), column)
 
 
-    # TODO: Test
     @doc_standard('h3_center_child', 'containing the center child of each H3 address')
     def h3_to_center_child(self, resolution: int = None) -> AnyDataFrame:
         """
