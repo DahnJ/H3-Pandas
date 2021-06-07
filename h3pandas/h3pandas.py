@@ -113,7 +113,6 @@ class H3Accessor:
         return self._apply_index_assign(h3.h3_get_resolution, 'h3_resolution')
 
 
-    # TODO: test
     @doc_standard('h3_base_cell', 'containing the base cell of each H3 address')
     def h3_get_base_cell(self):
         return self._apply_index_assign(h3.h3_get_base_cell, 'h3_base_cell')
