@@ -271,5 +271,5 @@ def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
 def test_h3_to_parent_aggregate_no_geometry(h3_dataframe_with_values):
     index = pd.Index(['881f1d4811fffff', '881f1d4817fffff'], name='h3_08')
     expected = pd.DataFrame({'val': [5, 3]}, index=index)
-    result = h3_dataframe_with_values.h3.h3_to_parent_aggregate(8)
+    result = h3_dataframe_with_values.h3.h3_to_parent_aggregate(8, return_geometry=False)
     pd.testing.assert_frame_equal(expected, result)

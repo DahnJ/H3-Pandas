@@ -255,7 +255,8 @@ class H3Accessor:
 
     def h3_to_parent_aggregate(self,
                                resolution: int,
-                               operation: Union[dict, str, Callable] = 'sum') -> GeoDataFrame:
+                               operation: Union[dict, str, Callable] = 'sum',
+                               return_geometry: bool = True) -> GeoDataFrame:
         """Assigns parent cell to each row, groups by it and performs `operation`. Assumes H3 index.
 
         Parameters
@@ -264,6 +265,8 @@ class H3Accessor:
             H3 resolution
         operation : Union[dict, str, Callable]
             Argument passed to DataFrame's `agg` method, default 'sum'
+        return_geometry: bool
+            Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
@@ -274,9 +277,6 @@ class H3Accessor:
         ValueError
             When an invalid H3 address is encountered
         """
-        # TODO: Unified has_geometry behaviour
-        has_geometry = 'geometry' in self._df.columns
-
         parent_h3addresses = [catch_invalid_h3_address(h3.h3_to_parent)(h3address, resolution)
                               for h3address in self._df.index]
         h3_parent_column = self._format_resolution(resolution)
@@ -286,10 +286,7 @@ class H3Accessor:
                    .groupby(h3_parent_column)[[c for c in self._df.columns if c != 'geometry']]
                    .agg(operation))
 
-        if has_geometry:
-            return grouped.h3.h3_to_geo_boundary()
-        else:
-            return grouped
+        return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
 
     # TODO: Doc
@@ -300,13 +297,16 @@ class H3Accessor:
     # TODO: Re-do properly
     def k_ring_smoothing(self,
                          k: int,
-                         weights: Sequence[float] = None) -> AnyDataFrame:
+                         weights: Sequence[float] = None,
+                         return_geometry: bool = True) -> AnyDataFrame:
         """Experimental.
 
         Parameters
         ----------
         k : int
         weights : Sequence[float] of length k
+        return_geometry: bool
+            Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
@@ -331,39 +331,42 @@ class H3Accessor:
                     .join(df)
                     .h3._multiply_numeric(normalized_weight))
 
-        return (pd.concat([weighted_hex_ring(self._df, i, weights[i]) for i in range(len(weights))])
-                .groupby('h3_hex_ring')
-                .sum()
-                .h3.h3_to_geo_boundary())
+        result = (pd.concat([weighted_hex_ring(self._df, i, weights[i]) for i in range(len(weights))])
+                  .groupby('h3_hex_ring')
+                  .sum())
 
-
+        return result.h3.h3_to_geo_boundary() if return_geometry else result
 
 
 
     # TODO: Test
     # TODO: Implement
     # TODO: Provide a warning if sums don't agree or sth like that? For uncovered polygons
-    def polyfill_resample(self, resolution: int) -> AnyDataFrame:
+    def polyfill_resample(self,
+                          resolution: int,
+                          return_geometry: bool = True) -> AnyDataFrame:
         """Experimental
 
         Parameters
         ----------
         resolution : int
+        return_geometry: bool
+            Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
 
         """
+        result = (self._df
+                  .h3.polyfill(resolution)
+                  [COLUMN_H3_POLYFILL]
+                  .apply(lambda x: pd.Series(x)).stack()
+                  .to_frame(COLUMN_H3_POLYFILL).reset_index(level=1, drop=True)
+                  .join(self._df)
+                  .reset_index()
+                  .set_index(COLUMN_H3_POLYFILL))
 
-        return (self._df
-                .h3.polyfill(resolution)
-                [COLUMN_H3_POLYFILL]
-                .apply(lambda x: pd.Series(x)).stack()
-                .to_frame(COLUMN_H3_POLYFILL).reset_index(level=1, drop=True)
-                .join(self._df)
-                .reset_index()
-                .set_index(COLUMN_H3_POLYFILL)
-                .h3.h3_to_geo_boundary())
+        return result.h3.h3_to_geo_boundary() if return_geometry else result
 
 
     # Private methods
