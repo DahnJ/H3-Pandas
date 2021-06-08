@@ -177,6 +177,7 @@ class H3Accessor:
 
     # TODO: Test
     # TODO: Geometry test?
+    # TODO: Test explode
     @doc_standard(COLUMN_H3_POLYFILL,
                   'containing a list H3 addresses whose centroid falls into the Polygon')
     def polyfill(self,
@@ -334,9 +335,6 @@ class H3Accessor:
                 .groupby('h3_hex_ring')
                 .sum()
                 .h3.h3_to_geo_boundary())
-
-
-
 
 
 

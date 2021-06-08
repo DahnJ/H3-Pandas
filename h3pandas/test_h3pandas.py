@@ -145,6 +145,28 @@ def test_h3_to_center_child(indexed_dataframe):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_empty_polyfill(h3_geodataframe_with_values):
+    expected = h3_geodataframe_with_values.assign(h3_polyfill=[list(), list(), list()])
+    result = h3_geodataframe_with_values.h3.polyfill(1)
+    pd.testing.assert_frame_equal(expected, result)
+    
+
+def test_polyfill(h3_geodataframe_with_values):
+    expected_cells = [
+        {'8a1f1d481747fff', '8a1f1d48174ffff', '8a1f1d481757fff', '8a1f1d48175ffff',
+         '8a1f1d481767fff', '8a1f1d48176ffff', '8a1f1d481777fff'},
+        {'8a1f1d481647fff', '8a1f1d48164ffff', '8a1f1d481657fff', '8a1f1d48165ffff',
+         '8a1f1d481667fff', '8a1f1d48166ffff', '8a1f1d481677fff'},
+        {'8a1f1d4810c7fff', '8a1f1d4810cffff', '8a1f1d4810d7fff', '8a1f1d4810dffff',
+         '8a1f1d4810e7fff', '8a1f1d4810effff', '8a1f1d4810f7fff'}
+    ]
+    expected = h3_geodataframe_with_values.assign(h3_polyfill=expected_cells)
+    result = h3_geodataframe_with_values.h3.polyfill(10)
+    result['h3_polyfill'] = result['h3_polyfill'].apply(set)  # Convert to set for testing
+    pd.testing.assert_frame_equal(expected, result)
+
+
+
 def test_cell_area(indexed_dataframe):
     expected = indexed_dataframe.assign(h3_cell_area=[0.09937867173389912, 0.09775508251476996])
     result = indexed_dataframe.h3.cell_area()
@@ -178,7 +200,7 @@ def test_h3_k_ring(indexed_dataframe):
     ]
     expected = indexed_dataframe.assign(h3_k_ring=expected_indices)
     result = indexed_dataframe.h3.k_ring()
-    result['h3_k_ring'] = result['h3_k_ring'].apply(set)  # Cast to set for testing
+    result['h3_k_ring'] = result['h3_k_ring'].apply(set)  # Convert to set for testing
     pd.testing.assert_frame_equal(expected, result)
 
 
@@ -197,7 +219,7 @@ def test_h3_hex_ring(indexed_dataframe):
     ]
     expected = indexed_dataframe.assign(h3_hex_ring=expected_indices)
     result = indexed_dataframe.h3.hex_ring()
-    result['h3_hex_ring'] = result['h3_hex_ring'].apply(set)  # Cast to set for testing
+    result['h3_hex_ring'] = result['h3_hex_ring'].apply(set)  # Convert to set for testing
     pd.testing.assert_frame_equal(expected, result)
 
 
