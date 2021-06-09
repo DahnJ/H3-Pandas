@@ -166,6 +166,21 @@ def test_polyfill(h3_geodataframe_with_values):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_polyfill_explode(h3_geodataframe_with_values):
+    expected_indices = set().union(*[
+        {'8a1f1d481747fff', '8a1f1d48174ffff', '8a1f1d481757fff', '8a1f1d48175ffff',
+         '8a1f1d481767fff', '8a1f1d48176ffff', '8a1f1d481777fff'},
+        {'8a1f1d481647fff', '8a1f1d48164ffff', '8a1f1d481657fff', '8a1f1d48165ffff',
+         '8a1f1d481667fff', '8a1f1d48166ffff', '8a1f1d481677fff'},
+        {'8a1f1d4810c7fff', '8a1f1d4810cffff', '8a1f1d4810d7fff', '8a1f1d4810dffff',
+         '8a1f1d4810e7fff', '8a1f1d4810effff', '8a1f1d4810f7fff'}
+    ])
+    result = h3_geodataframe_with_values.h3.polyfill(10, explode=True)
+    assert len(result) == len(h3_geodataframe_with_values)*7
+    assert set(result['h3_polyfill']) == expected_indices
+    assert not result['val'].isna().any()
+
+
 
 def test_cell_area(indexed_dataframe):
     expected = indexed_dataframe.assign(h3_cell_area=[0.09937867173389912, 0.09775508251476996])

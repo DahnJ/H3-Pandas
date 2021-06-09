@@ -188,9 +188,6 @@ class H3Accessor:
                                         'h3_center_child')
 
 
-    # TODO: Test
-    # TODO: Geometry test?
-    # TODO: Test explode
     @doc_standard(COLUMN_H3_POLYFILL,
                   'containing a list H3 addresses whose centroid falls into the Polygon')
     def polyfill(self,
@@ -202,16 +199,25 @@ class H3Accessor:
         resolution : int
             H3 resolution
         explode : bool
-
+            If True, will explode the resulting list vertically. All other columns' values are copied.
+            Default: False
         """
 
-        def func(geometry): return list(polyfill(geometry, resolution, True))
-        if explode:
-            def func(geometry): return pd.Series(func(geometry))
+        def func(row):
+            return list(polyfill(row.geometry, resolution, True))
 
-        result = self._df.geometry.apply(func)
+        expand = 'expand' if explode else 'reduce'
+        result = self._df.apply(func, axis=1, result_type=expand)
+
         if not explode:
-            result = result.rename('h3_polyfill')
+            assign_args = {COLUMN_H3_POLYFILL: result}
+            return self._df.assign(**assign_args)
+
+        result = (result
+                  .stack()
+                  .to_frame(COLUMN_H3_POLYFILL)
+                  .reset_index(level=1, drop=True))
+
         return self._df.join(result)
 
 
@@ -445,7 +451,6 @@ class H3Accessor:
                   .reset_index(level=1, drop=True))
         result = self._df.join(result)
         return finalizer(result)
-
 
 
     # TODO: types, doc, ..
