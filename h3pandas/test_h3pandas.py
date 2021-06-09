@@ -204,11 +204,30 @@ def test_h3_k_ring(indexed_dataframe):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_h3_k_ring_explode(indexed_dataframe):
+    expected_indices = set().union(*[
+        {'891e3097383ffff', '891e3097387ffff', '891e309738bffff', '891e309738fffff',
+         '891e3097393ffff', '891e3097397ffff', '891e309739bffff'},
+        {'891e2659893ffff', '891e2659897ffff', '891e2659c23ffff', '891e2659c27ffff',
+         '891e2659c2bffff', '891e2659c2fffff', '891e2659d5bffff'}
+    ])
+    result = indexed_dataframe.h3.k_ring(explode=True)
+    assert len(result) == len(indexed_dataframe)*7
+    assert set(result['h3_k_ring']) == expected_indices
+    assert not result['lat'].isna().any()
+
+
 def test_h3_0_hex_ring(indexed_dataframe):
     expected = indexed_dataframe.assign(h3_hex_ring=[[h] for h in indexed_dataframe.index])
     result = indexed_dataframe.h3.hex_ring(0)
     pd.testing.assert_frame_equal(expected, result)
 
+
+def test_h3_0_hex_ring_explode(indexed_dataframe):
+    expected = indexed_dataframe.assign(h3_hex_ring=[h for h in indexed_dataframe.index])
+    result = indexed_dataframe.h3.hex_ring(0, True)
+    pd.testing.assert_frame_equal(expected, result)
+    
 
 def test_h3_hex_ring(indexed_dataframe):
     expected_indices = [
@@ -223,12 +242,24 @@ def test_h3_hex_ring(indexed_dataframe):
     pd.testing.assert_frame_equal(expected, result)
 
 
+def test_h3_hex_ring_explode(indexed_dataframe):
+    expected_indices = set().union(*[
+        {'891e3097387ffff', '891e309738bffff', '891e309738fffff',
+         '891e3097393ffff', '891e3097397ffff', '891e309739bffff'},
+        {'891e2659893ffff', '891e2659897ffff', '891e2659c23ffff',
+         '891e2659c27ffff', '891e2659c2bffff', '891e2659d5bffff'}
+    ])
+    result = indexed_dataframe.h3.hex_ring(explode=True)
+    assert len(result) == len(indexed_dataframe)*6
+    assert set(result['h3_hex_ring']) == expected_indices
+    assert not result['lat'].isna().any()
+
+
 def test_h3_is_valid(indexed_dataframe):
     indexed_dataframe.index = [str(indexed_dataframe.index[0])] + ['invalid']
     expected = indexed_dataframe.assign(h3_is_valid=[True, False])
     result = indexed_dataframe.h3.h3_is_valid()
     pd.testing.assert_frame_equal(expected, result)
-
 
 
 def test_h3_get_resolution_index_only(h3_dataframe_with_values):

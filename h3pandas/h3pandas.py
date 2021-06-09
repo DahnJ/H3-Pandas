@@ -1,4 +1,4 @@
-from typing import Union, Callable, Sequence
+from typing import Union, Callable, Sequence, Any
 # Literal is not supported by Python <3.8
 try:
     from typing import Literal
@@ -122,19 +122,26 @@ class H3Accessor:
         return self._apply_index_assign(h3.h3_is_valid, 'h3_is_valid')
 
 
-    # TODO: Consider 'explode' option (same goes for all list-making methods)
     @doc_standard('h3_k_ring', 'containing a list H3 addresses within a distance of `k`')
-    def k_ring(self, k: int = 1) -> AnyDataFrame:
+    def k_ring(self,
+               k: int = 1,
+               explode: bool = False) -> AnyDataFrame:
         """
         Parameters
         ----------
         k : int
             the distance from the origin H3 address. Default k = 1
+        explode : bool
+            If True, will explode the resulting list vertically. All other columns' values are copied.
+            Default: False
         """
-        return self._apply_index_assign(wrapped_partial(h3.k_ring, k=k), 'h3_k_ring', lambda x: list(x))
+        func = wrapped_partial(h3.k_ring, k=k)
+        column_name = 'h3_k_ring'
+        if explode:
+            return self.__apply_index_explode(func, column_name, list)
+        return self._apply_index_assign(func, column_name, list)
 
-    # TODO: Doc
-    # TODO: Explode
+
     @doc_standard('h3_k_ring', 'containing a list H3 addresses forming a hollow hexagonal ring'
                                'at a distance `k`')
     def hex_ring(self,
@@ -146,8 +153,14 @@ class H3Accessor:
         k : int
             the distance from the origin H3 address. Default k = 1
         explode : bool
+            If True, will explode the resulting list vertically. All other columns' values are copied.
+            Default: False
         """
-        return self._apply_index_assign(wrapped_partial(h3.hex_ring, k=k), 'h3_hex_ring', lambda x: list(x))
+        func = wrapped_partial(h3.hex_ring, k=k)
+        column_name = 'h3_hex_ring'
+        if explode:
+            return self.__apply_index_explode(func, column_name, list)
+        return self._apply_index_assign(func, column_name, list)
 
 
     @doc_standard('h3_{resolution}', 'containing the parent of each H3 address')
@@ -266,7 +279,7 @@ class H3Accessor:
         operation : Union[dict, str, Callable]
             Argument passed to DataFrame's `agg` method, default 'sum'
         return_geometry: bool
-            Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
@@ -306,7 +319,7 @@ class H3Accessor:
         k : int
         weights : Sequence[float] of length k
         return_geometry: bool
-            Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
@@ -351,7 +364,7 @@ class H3Accessor:
         ----------
         resolution : int
         return_geometry: bool
-            Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
@@ -373,16 +386,16 @@ class H3Accessor:
 
     def _apply_index_assign(self,
                             func: Callable,
-                            column: str,
+                            column_name: str,
                             processor: Callable = lambda x: x,
-                            finalizer: Callable = lambda x: x):
+                            finalizer: Callable = lambda x: x) -> Any:
         """Helper method. Applies `func` to index and assigns the result to `column`.
 
         Parameters
         ----------
         func : Callable
             single-argument function to be applied to each H3 address
-        column : str
+        column_name : str
             name of the resulting column
         processor : Callable
             (Optional) further processes the result of func. Default: identity
@@ -392,11 +405,47 @@ class H3Accessor:
         Returns
         -------
         Dataframe with column `column` containing the result of `func`.
+        If using `finalizer`, can return anything the `finalizer` returns.
         """
         func = catch_invalid_h3_address(func)
         result = [processor(func(h3address)) for h3address in self._df.index]
-        assign_args = {column: result}
+        assign_args = {column_name: result}
         return finalizer(self._df.assign(**assign_args))
+
+
+    def __apply_index_explode(self,
+                              func: Callable,
+                              column_name: str,
+                              processor: Callable = lambda x: x,
+                              finalizer: Callable = lambda x: x) -> Any:
+        """Helper method. Applies a list-making `func` to index and performs a vertical explode.
+        Any additional values are simply copied to all the rows.
+
+        Parameters
+        ----------
+        func : Callable
+            single-argument function to be applied to each H3 address
+        column_name : str
+            name of the resulting column
+        processor : Callable
+            (Optional) further processes the result of func. Default: identity
+        finalizer : Callable
+            (Optional) further processes the resulting dataframe. Default: identity
+
+        Returns
+        -------
+        Dataframe with column `column` containing the result of `func`.
+        If using `finalizer`, can return anything the `finalizer` returns.
+        """
+        func = catch_invalid_h3_address(func)
+        result = (pd.DataFrame.from_dict({h3address: processor(func(h3address))
+                                           for h3address in self._df.index}, orient='index')
+                  .stack()
+                  .to_frame(column_name)
+                  .reset_index(level=1, drop=True))
+        result = self._df.join(result)
+        return finalizer(result)
+
 
 
     # TODO: types, doc, ..
