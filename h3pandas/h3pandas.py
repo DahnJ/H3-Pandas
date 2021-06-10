@@ -240,7 +240,8 @@ class H3Accessor:
                             resolution: int,
                             operation: Union[dict, str, Callable] = 'sum',
                             lat_col: str = 'lat',
-                            lng_col: str = 'lng' ) -> DataFrame:
+                            lng_col: str = 'lng',
+                            return_geometry: bool = True) -> DataFrame:
         """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
 
         Warning: Geographic information gets lost, returns a DataFrame
@@ -260,16 +261,19 @@ class H3Accessor:
             Name of the latitude column (if used), default 'lat'
         lng_col : str
             Name of the longitude column (if used), default 'lng'
+        return_geometry: bool
+            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
 
         Returns
         -------
         DataFrame aggregated by H3 address into which each row's point falls
         """
-        return pd.DataFrame(self.geo_to_h3(resolution, lat_col, lng_col, False)
+        grouped = pd.DataFrame(self.geo_to_h3(resolution, lat_col, lng_col, False)
                             .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore')
                             .groupby(self._format_resolution(resolution))
                             .agg(operation))
+        return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
 
     def h3_to_parent_aggregate(self,
