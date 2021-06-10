@@ -319,7 +319,7 @@ class H3Accessor:
     # TODO: New cell behaviour
     # TODO: Re-do properly
     def k_ring_smoothing(self,
-                         k: int,
+                         k: int = None,
                          weights: Sequence[float] = None,
                          return_geometry: bool = True) -> AnyDataFrame:
         """Experimental.
@@ -335,6 +335,9 @@ class H3Accessor:
         -------
 
         """
+        if ((weights is None) and (k is None)) or ((weights is not None) and (k is not None)):
+            raise ValueError("Exactly one of `k` and `weights` must be set.")
+
         if weights is None:
             return (self._df
                     .apply(lambda x: pd.Series(list(h3.k_ring(x.name, k))), axis=1).stack()
