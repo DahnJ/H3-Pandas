@@ -25,7 +25,7 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 
 ---
 <p align="center">
-    <a href=""><img src="https://i.imgur.com/FLeAqjL.gif" alt="example usage" width="450"></a>
+    <a href=""><img src="https://i.imgur.com/6XrsLOJ.gif" alt="example usage" width="450"></a>
 </p>
 
 
