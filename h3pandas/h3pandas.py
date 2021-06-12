@@ -335,7 +335,7 @@ class H3Accessor:
         -------
 
         """
-        if ((weights is None) and (k is None)) or ((weights is not None) and (k is not None)):
+        if sum([weights is None, k is None]) != 1:
             raise ValueError("Exactly one of `k` and `weights` must be set.")
 
         if weights is None:
