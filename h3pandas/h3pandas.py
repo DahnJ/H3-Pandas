@@ -267,12 +267,12 @@ class H3Accessor:
 
         Returns
         -------
-        DataFrame aggregated by H3 address into which each row's point falls
+        (Geo)DataFrame aggregated by H3 address into which each row's point falls
         """
         grouped = pd.DataFrame(self.geo_to_h3(resolution, lat_col, lng_col, False)
-                            .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore')
-                            .groupby(self._format_resolution(resolution))
-                            .agg(operation))
+                               .drop(columns=[lat_col, lng_col, 'geometry'], errors='ignore')
+                               .groupby(self._format_resolution(resolution))
+                               .agg(operation))
         return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
 
@@ -293,7 +293,7 @@ class H3Accessor:
 
         Returns
         -------
-        GeoDataFrame aggregated by the parent of each H3 address
+        (Geo)DataFrame aggregated by the parent of each H3 address
 
         Raises
         ------
@@ -322,17 +322,23 @@ class H3Accessor:
                          k: int = None,
                          weights: Sequence[float] = None,
                          return_geometry: bool = True) -> AnyDataFrame:
-        """Experimental.
+        """Experimental. Creates a k-ring around each input cell and distributes the cell's values
+        either uniformly (by setting `k`) or in a weighted manner (by setting `weights`).
 
         Parameters
         ----------
         k : int
-        weights : Sequence[float] of length k
+            The distance from the origin H3 address
+        weights : Sequence[float]
+            Weighting of the values based on the distance from the origin.
+            Values will be normalized to add up to 1.
+            Alternative to setting `k`.
         return_geometry: bool
             (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
         Returns
         -------
+        (Geo)DataFrame with smoothed values
 
         """
         if sum([weights is None, k is None]) != 1:
@@ -376,6 +382,7 @@ class H3Accessor:
         Parameters
         ----------
         resolution : int
+            H3 resolution
         return_geometry: bool
             (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
