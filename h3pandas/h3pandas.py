@@ -345,7 +345,7 @@ class H3Accessor:
             raise ValueError("Exactly one of `k` and `weights` must be set.")
 
         # If weights are all equal, use the computationally simpler option
-        if weights and (len(set(weights)) == 1):
+        if (weights is not None) and (len(set(weights)) <= 1):
             k = len(weights)
             weights = None
 
