@@ -344,13 +344,22 @@ class H3Accessor:
         if sum([weights is None, k is None]) != 1:
             raise ValueError("Exactly one of `k` and `weights` must be set.")
 
-        if weights is None:
-            return (self._df
-                    .apply(lambda x: pd.Series(list(h3.k_ring(x.name, k))), axis=1).stack()
-                    .to_frame('h3_k_ring').reset_index(1, drop=True)
-                    .join(self._df)
-                    .groupby('h3_k_ring').sum().divide((1 + 3 * k * (k + 1))))
+        # If weights are all equal, use the computationally simpler option
+        if weights and (len(set(weights)) == 1):
+            k = len(weights)
+            weights = None
 
+        # Unweighted case
+        if weights is None:
+            result = (self._df
+                      .apply(lambda x: pd.Series(list(h3.k_ring(x.name, k))), axis=1).stack()
+                      .to_frame('h3_k_ring').reset_index(1, drop=True)
+                      .join(self._df)
+                      .groupby('h3_k_ring').sum().divide((1 + 3 * k * (k + 1))))
+
+            return result.h3.h3_to_geo_boundary() if return_geometry else result
+
+        # Weighted case
         weights = np.array(weights)
         multipliers = np.array([1] + [i * 6 for i in range(1, len(weights))])
         weights = weights / (weights * multipliers).sum()
