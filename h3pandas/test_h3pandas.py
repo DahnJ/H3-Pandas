@@ -339,3 +339,17 @@ def test_h3_k_ring_smoothing_0_ring_weights(h3_dataframe_with_values):
     expected.index = expected.index.rename('h3_k_ring')
     result = h3_dataframe_with_values.h3.k_ring_smoothing(weights=[1], return_geometry=False)
     pd.testing.assert_frame_equal(expected, result)
+
+
+def test_h3_k_ring_smoothing_2_ring(h3_dataframe_with_values):
+    data = h3_dataframe_with_values.iloc[:1]
+    expected = set([1/19])
+    result = set(data.h3.k_ring_smoothing(2)['val'])
+    assert expected == result
+
+
+def test_h3_k_ring_smoothing_1_ring_weigted(h3_dataframe_with_values):
+    data = h3_dataframe_with_values.iloc[:1]
+    expected = set([1/4, 1/8])
+    result = set(data.h3.k_ring_smoothing(weights=[2, 1])['val'])
+    assert expected == result
