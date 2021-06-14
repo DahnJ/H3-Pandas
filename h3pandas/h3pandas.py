@@ -331,8 +331,8 @@ class H3Accessor:
             The distance from the origin H3 address
         weights : Sequence[float]
             Weighting of the values based on the distance from the origin.
-            Values will be normalized to add up to 1.
-            Alternative to setting `k`.
+            First weight corresponds to the origin.
+            Values are be normalized to add up to 1.
         return_geometry: bool
             (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
 
@@ -345,8 +345,8 @@ class H3Accessor:
             raise ValueError("Exactly one of `k` and `weights` must be set.")
 
         # If weights are all equal, use the computationally simpler option
-        if (weights is not None) and (len(set(weights)) <= 1):
-            k = len(weights)
+        if (weights is not None) and (len(set(weights)) == 1):
+            k = len(weights) - 1
             weights = None
 
         # Unweighted case
@@ -359,6 +359,10 @@ class H3Accessor:
 
             return result.h3.h3_to_geo_boundary() if return_geometry else result
 
+        if len(weights) == 0:
+            raise ValueError("Weights cannot be empty.")
+
+        # TODO: How does the original index get there?
         # Weighted case
         weights = np.array(weights)
         multipliers = np.array([1] + [i * 6 for i in range(1, len(weights))])

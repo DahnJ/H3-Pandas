@@ -323,19 +323,19 @@ def test_h3_to_parent_aggregate_no_geometry(h3_dataframe_with_values):
 
 def test_h3_k_ring_smoothing_k_vs_weighting(h3_dataframe_with_values):
     result_k = h3_dataframe_with_values.h3.k_ring_smoothing(2)
-    result_weighted = h3_dataframe_with_values.h3.k_ring_smoothing(weights=[1, 1])
+    result_weighted = h3_dataframe_with_values.h3.k_ring_smoothing(weights=[1, 1, 1])
     pd.testing.assert_frame_equal(result_k, result_weighted)
 
 
-def test_h3_k_ring_smoothing_empty_input(h3_dataframe_with_values):
+def test_h3_k_ring_smoothing_0_ring(h3_dataframe_with_values):
     expected = h3_dataframe_with_values.copy().sort_index().astype({'val': float})
     expected.index = expected.index.rename('h3_k_ring')
     result = h3_dataframe_with_values.h3.k_ring_smoothing(0, return_geometry=False)
     pd.testing.assert_frame_equal(expected, result)
 
 
-def test_h3_k_ring_smoothing_empty_weights(h3_dataframe_with_values):
+def test_h3_k_ring_smoothing_0_ring_weights(h3_dataframe_with_values):
     expected = h3_dataframe_with_values.copy().sort_index().astype({'val': float})
     expected.index = expected.index.rename('h3_k_ring')
-    result = h3_dataframe_with_values.h3.k_ring_smoothing(weights=[], return_geometry=False)
+    result = h3_dataframe_with_values.h3.k_ring_smoothing(weights=[1], return_geometry=False)
     pd.testing.assert_frame_equal(expected, result)
