@@ -348,7 +348,7 @@ def test_h3_k_ring_smoothing_2_ring(h3_dataframe_with_values):
     assert expected == result
 
 
-def test_h3_k_ring_smoothing_1_ring_weigted(h3_dataframe_with_values):
+def test_h3_k_ring_smoothing_1_ring_weighted(h3_dataframe_with_values):
     data = h3_dataframe_with_values.iloc[:1]
     expected = set([1/4, 1/8])
     result = set(data.h3.k_ring_smoothing(weights=[2, 1])['val'])

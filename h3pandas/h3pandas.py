@@ -312,9 +312,6 @@ class H3Accessor:
         return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
 
-    # TODO: Doc
-    # TODO: Test
-    # TODO: Test, k=3 should be same as [1,1,1,1,1]
     # TODO: Will likely fail in many cases (what are the existing columns?)
     # TODO: New cell behaviour
     # TODO: Re-do properly
@@ -352,9 +349,7 @@ class H3Accessor:
         # Unweighted case
         if weights is None:
             result = (self._df
-                      .apply(lambda x: pd.Series(list(h3.k_ring(x.name, k))), axis=1).stack()
-                      .to_frame('h3_k_ring').reset_index(1, drop=True)
-                      .join(self._df)
+                      .h3.k_ring(k, explode=True)
                       .groupby('h3_k_ring').sum().divide((1 + 3 * k * (k + 1))))
 
             return result.h3.h3_to_geo_boundary() if return_geometry else result
@@ -362,7 +357,6 @@ class H3Accessor:
         if len(weights) == 0:
             raise ValueError("Weights cannot be empty.")
 
-        # TODO: How does the original index get there?
         # Weighted case
         weights = np.array(weights)
         multipliers = np.array([1] + [i * 6 for i in range(1, len(weights))])
@@ -370,11 +364,7 @@ class H3Accessor:
 
         # This should be exploded hex ring
         def weighted_hex_ring(df, k, normalized_weight):
-            return (df
-                    .apply(lambda x: pd.Series(list(h3.hex_ring(x.name, k))), axis=1).stack()
-                    .to_frame('h3_hex_ring').reset_index(1, drop=True)
-                    .join(df)
-                    .h3._multiply_numeric(normalized_weight))
+            return df.h3.hex_ring(k, explode=True).h3._multiply_numeric(normalized_weight)
 
         result = (pd.concat([weighted_hex_ring(self._df, i, weights[i]) for i in range(len(weights))])
                   .groupby('h3_hex_ring')
