@@ -288,7 +288,7 @@ def test_h3_get_resolution_index_only(h3_dataframe_with_values):
 
 
 def test_geo_to_h3_aggregate(basic_dataframe_with_values):
-    result = basic_dataframe_with_values.h3.geo_to_h3_aggregate(1)
+    result = basic_dataframe_with_values.h3.geo_to_h3_aggregate(1, return_geometry=False)
     expected = (pd.DataFrame({'h3_01': ['811e3ffffffffff'], 'val': [2+5]})
                 .set_index('h3_01'))
 
@@ -296,7 +296,7 @@ def test_geo_to_h3_aggregate(basic_dataframe_with_values):
 
 
 def test_geo_to_h3_aggregate_geo(basic_geodataframe_with_values):
-    result = basic_geodataframe_with_values.h3.geo_to_h3_aggregate(1)
+    result = basic_geodataframe_with_values.h3.geo_to_h3_aggregate(1, return_geometry=False)
     expected = (pd.DataFrame({'h3_01': ['811e3ffffffffff'], 'val': [2+5]})
                 .set_index('h3_01'))
 
