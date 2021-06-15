@@ -312,15 +312,20 @@ class H3Accessor:
         return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
 
+    # TODO: Needs to allow for handling relative values (e.g. percentage)
     # TODO: Will likely fail in many cases (what are the existing columns?)
     # TODO: New cell behaviour
-    # TODO: Re-do properly
     def k_ring_smoothing(self,
                          k: int = None,
                          weights: Sequence[float] = None,
                          return_geometry: bool = True) -> AnyDataFrame:
-        """Experimental. Creates a k-ring around each input cell and distributes the cell's values
-        either uniformly (by setting `k`) or in a weighted manner (by setting `weights`).
+        """Experimental. Creates a k-ring around each input cell and distributes the cell's values.
+
+        The values are distributed either
+         - uniformly (by setting `k`) or
+         - by weighing their values using `weights`.
+
+        Only numeric columns are modified.
 
         Parameters
         ----------
@@ -373,9 +378,7 @@ class H3Accessor:
         return result.h3.h3_to_geo_boundary() if return_geometry else result
 
 
-
     # TODO: Test
-    # TODO: Implement
     # TODO: Provide a warning if sums don't agree or sth like that? For uncovered polygons
     def polyfill_resample(self,
                           resolution: int,
@@ -393,17 +396,10 @@ class H3Accessor:
         -------
 
         """
-        result = (self._df
-                  .h3.polyfill(resolution)
-                  [COLUMN_H3_POLYFILL]
-                  .apply(lambda x: pd.Series(x)).stack()
-                  .to_frame(COLUMN_H3_POLYFILL).reset_index(level=1, drop=True)
-                  .join(self._df)
-                  .reset_index()
-                  .set_index(COLUMN_H3_POLYFILL))
+        result = self._df.h3.polyfill(resolution, explode=True)
+        result = (result.reset_index().set_index(COLUMN_H3_POLYFILL))
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
-
 
     # Private methods
 
