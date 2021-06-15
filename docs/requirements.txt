@@ -6,3 +6,4 @@ h3==3.6.*
 geopandas==0.9.*
 pandas==1.2.*
 typing-extensions==3.10.*
+numpy==1.20.*

@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 shapely = "*"
 h3 = "*"
+numpy = "*"
 geopandas = "*"
 pandas = "*"
 pytest = "*"
