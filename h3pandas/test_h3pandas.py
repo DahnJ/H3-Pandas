@@ -353,3 +353,20 @@ def test_h3_k_ring_smoothing_1_ring_weighted(h3_dataframe_with_values):
     expected = set([1/4, 1/8])
     result = set(data.h3.k_ring_smoothing(weights=[2, 1])['val'])
     assert expected == result
+
+
+def test_polyfill_resample(h3_geodataframe_with_values):
+    expected_indices = set().union(*[
+        {'8a1f1d481747fff', '8a1f1d48174ffff', '8a1f1d481757fff', '8a1f1d48175ffff',
+         '8a1f1d481767fff', '8a1f1d48176ffff', '8a1f1d481777fff'},
+        {'8a1f1d481647fff', '8a1f1d48164ffff', '8a1f1d481657fff', '8a1f1d48165ffff',
+         '8a1f1d481667fff', '8a1f1d48166ffff', '8a1f1d481677fff'},
+        {'8a1f1d4810c7fff', '8a1f1d4810cffff', '8a1f1d4810d7fff', '8a1f1d4810dffff',
+         '8a1f1d4810e7fff', '8a1f1d4810effff', '8a1f1d4810f7fff'}
+    ])
+    expected_values = set([1, 2, 5])
+    result = h3_geodataframe_with_values.h3.polyfill_resample(10, return_geometry=False)
+    assert len(result) == len(h3_geodataframe_with_values)*7
+    assert set(result.index) == expected_indices
+    assert set(result['val']) == expected_values
+    assert not result['val'].isna().any()
