@@ -13,9 +13,10 @@ H3-Pandas
 
 Welcome to the documentation of H3-Pandas!
 
-Take a look at the :ref:`h3pandas`
-
 .. toctree::
-    :hidden:
+    :titlesonly:
 
     h3pandas
+    Notebook: Introduction <notebook/00-intro>
+    Notebook: Unified Data Layers <notebook/01-unified-data-layers>
+    
