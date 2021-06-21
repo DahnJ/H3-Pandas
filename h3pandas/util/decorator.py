@@ -27,7 +27,7 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
         except (TypeError, ValueError, H3CellError) as e:
             message = f"H3 method raised an error. Is the H3 address correct?"
             message += f"\nCaller: {f.__name__}({_print_signature(*args, **kwargs)})"
-            message += f'\nOriginal error: {repr(e)}'
+            message += f"\nOriginal error: {repr(e)}"
             raise ValueError(message)
 
     return safe_f
@@ -37,13 +37,12 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
 def doc_standard(column_name: str, description: str) -> Callable:
     """Wrapper to provide a standard apply-to-H3-index docstring"""
 
-
     def doc_decorator(f):
         @wraps(f)
         def doc_f(*args, **kwargs):
             return f(*args, **kwargs)
 
-        parameters = f.__doc__ or ''
+        parameters = f.__doc__ or ""
 
         doc = f"""Adds the column `{column_name}` {description}. Assumes H3 index.
         {parameters}
@@ -63,12 +62,11 @@ def doc_standard(column_name: str, description: str) -> Callable:
     return doc_decorator
 
 
-
 def _print_signature(*args, **kwargs):
     signature = []
     if args:
-        signature.append(', '.join([repr(a) for a in args]))
+        signature.append(", ".join([repr(a) for a in args]))
     if kwargs:
-        signature.append(', '.join({f'{repr(k)}={repr(v)}' for k, v in kwargs.items()}))
+        signature.append(", ".join({f"{repr(k)}={repr(v)}" for k, v in kwargs.items()}))
 
-    return ', '.join(signature)
+    return ", ".join(signature)

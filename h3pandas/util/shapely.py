@@ -12,9 +12,9 @@ def _extract_coords(polygon: Polygon) -> Tuple[List, List[List]]:
     return outer, inners
 
 
-def polyfill(geometry: MultiPolyOrPoly,
-             resolution: int,
-             geo_json: bool = False) -> Set[str]:
+def polyfill(
+    geometry: MultiPolyOrPoly, resolution: int, geo_json: bool = False
+) -> Set[str]:
     """h3.polyfill accepting a shapely (Multi)Polygon
 
     Parameters
