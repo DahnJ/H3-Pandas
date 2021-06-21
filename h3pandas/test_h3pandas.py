@@ -5,7 +5,8 @@ from shapely.geometry import Polygon, box
 import pandas as pd
 import geopandas as gpd
 
-# TODO: Make sure methods are tested both for DataFrame and GeoDataFrame (where applicable)
+# TODO: Make sure methods are tested both for
+#  DataFrame and GeoDataFrame (where applicable)
 
 # Fixtures
 

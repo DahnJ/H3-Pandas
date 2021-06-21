@@ -77,7 +77,8 @@ class H3Accessor:
         return df
 
     def h3_to_geo(self) -> GeoDataFrame:
-        """Add `geometry` with centroid of each H3 address to the DataFrame. Assumes H3 index.
+        """Add `geometry` with centroid of each H3 address to the DataFrame.
+        Assumes H3 index.
 
         Returns
         -------
@@ -136,7 +137,8 @@ class H3Accessor:
         k : int
             the distance from the origin H3 address. Default k = 1
         explode : bool
-            If True, will explode the resulting list vertically. All other columns' values are copied.
+            If True, will explode the resulting list vertically.
+            All other columns' values are copied.
             Default: False
         """
         func = wrapped_partial(h3.k_ring, k=k)
@@ -157,7 +159,8 @@ class H3Accessor:
         k : int
             the distance from the origin H3 address. Default k = 1
         explode : bool
-            If True, will explode the resulting list vertically. All other columns' values are copied.
+            If True, will explode the resulting list vertically.
+            All other columns' values are copied.
             Default: False
         """
         func = wrapped_partial(h3.hex_ring, k=k)
@@ -186,7 +189,8 @@ class H3Accessor:
         Parameters
         ----------
         resolution : int or None
-            H3 resolution. If none, then returns the child of resolution directly below that of each H3 cell
+            H3 resolution. If none, then returns the child of resolution
+            directly below that of each H3 cell
         """
         return self._apply_index_assign(
             wrapped_partial(h3.h3_to_center_child, res=resolution), "h3_center_child"
@@ -203,7 +207,8 @@ class H3Accessor:
         resolution : int
             H3 resolution
         explode : bool
-            If True, will explode the resulting list vertically. All other columns' values are copied.
+            If True, will explode the resulting list vertically.
+            All other columns' values are copied.
             Default: False
         """
 
@@ -237,9 +242,11 @@ class H3Accessor:
             wrapped_partial(h3.cell_area, unit=unit), "h3_cell_area"
         )
 
-    # TODO: The semantics of this are no longer correct. Consider a different naming/description
+    # TODO: The semantics of this are no longer correct.
+    #  Consider a different naming/description
     # Aggregate methods
-    # These methods extend the API to provide a convenient way to aggregate the results by their H3 address
+    # These methods extend the API to provide a convenient way to aggregate
+    # the results by their H3 address
 
     def geo_to_h3_aggregate(
         self,
@@ -249,7 +256,8 @@ class H3Accessor:
         lng_col: str = "lng",
         return_geometry: bool = True,
     ) -> DataFrame:
-        """Adds H3 index to DataFrame, groups points with the same index and performs `operation`
+        """Adds H3 index to DataFrame, groups points with the same index
+        and performs `operation`.
 
         Warning: Geographic information gets lost, returns a DataFrame
             - if you wish to retain it, consider using `geo_to_h3` instead.
@@ -269,7 +277,8 @@ class H3Accessor:
         lng_col : str
             Name of the longitude column (if used), default 'lng'
         return_geometry: bool
-            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells.
+            Default = True
 
 
         Returns
@@ -290,7 +299,8 @@ class H3Accessor:
         operation: Union[dict, str, Callable] = "sum",
         return_geometry: bool = True,
     ) -> GeoDataFrame:
-        """Assigns parent cell to each row, groups by it and performs `operation`. Assumes H3 index.
+        """Assigns parent cell to each row, groups by it and performs `operation`.
+        Assumes H3 index.
 
         Parameters
         ----------
@@ -299,7 +309,8 @@ class H3Accessor:
         operation : Union[dict, str, Callable]
             Argument passed to DataFrame's `agg` method, default 'sum'
         return_geometry: bool
-            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells.
+            Default = True
 
         Returns
         -------
@@ -333,7 +344,8 @@ class H3Accessor:
         weights: Sequence[float] = None,
         return_geometry: bool = True,
     ) -> AnyDataFrame:
-        """Experimental. Creates a k-ring around each input cell and distributes the cell's values.
+        """Experimental. Creates a k-ring around each input cell and distributes
+        the cell's values.
 
         The values are distributed either
          - uniformly (by setting `k`) or
@@ -350,7 +362,8 @@ class H3Accessor:
             First weight corresponds to the origin.
             Values are be normalized to add up to 1.
         return_geometry: bool
-            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells.
+            Default = True
 
         Returns
         -------
@@ -404,7 +417,8 @@ class H3Accessor:
         return result.h3.h3_to_geo_boundary() if return_geometry else result
 
     # TODO: Test
-    # TODO: Provide a warning if sums don't agree or sth like that? For uncovered polygons
+    # TODO: Provide a warning if sums don't agree or sth like that?
+    #  (For uncovered polygons)
     def polyfill_resample(
         self, resolution: int, return_geometry: bool = True
     ) -> AnyDataFrame:
@@ -415,7 +429,8 @@ class H3Accessor:
         resolution : int
             H3 resolution
         return_geometry: bool
-            (Optional) Whether to add a `geometry` column with the hexagonal cells. Default = True
+            (Optional) Whether to add a `geometry` column with the hexagonal cells.
+            Default = True
 
         Returns
         -------
@@ -465,7 +480,8 @@ class H3Accessor:
         processor: Callable = lambda x: x,
         finalizer: Callable = lambda x: x,
     ) -> Any:
-        """Helper method. Applies a list-making `func` to index and performs a vertical explode.
+        """Helper method. Applies a list-making `func` to index and performs
+        a vertical explode.
         Any additional values are simply copied to all the rows.
 
         Parameters

@@ -12,7 +12,8 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
 
     Returns
     -------
-    The return value of f, or a ValueError if f threw ValueError, TypeError, or H3CellError
+    The return value of f, or a ValueError if f threw ValueError, TypeError,
+    or H3CellError
 
     Raises
     ------
@@ -25,7 +26,7 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
         try:
             return f(*args, **kwargs)
         except (TypeError, ValueError, H3CellError) as e:
-            message = f"H3 method raised an error. Is the H3 address correct?"
+            message = "H3 method raised an error. Is the H3 address correct?"
             message += f"\nCaller: {f.__name__}({_print_signature(*args, **kwargs)})"
             message += f"\nOriginal error: {repr(e)}"
             raise ValueError(message)

@@ -7,10 +7,13 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+version = versioneer.get_version()
+download_url = f"https://github.com/DahnJ/H3-Pandas/archive/refs/tags/{version}.tar.gz"
+
 setup(
     name="h3pandas",
-    version=versioneer.get_version(),
-    cmdclass=versionner.get_cmdclass(),
+    version=version,
+    cmdclass=versioneer.get_cmdclass(),
     license="MIT",
     description="Integration of H3 and GeoPandas",
     long_description=long_description,
@@ -18,7 +21,7 @@ setup(
     author="Dahn",
     author_email="dahnjahn@gmail.com",
     url="https://github.com/DahnJ/H3-Pandas",
-    download_url=f"https://github.com/DahnJ/H3-Pandas/archive/refs/tags/{__version__}.tar.gz",
+    download_url=download_url,
     keywords=[
         "python",
         "h3",

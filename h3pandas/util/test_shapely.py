@@ -1,6 +1,5 @@
 from shapely.geometry import Polygon, MultiPolygon, LineString
 import pytest
-from h3 import h3
 from .shapely import polyfill
 
 
