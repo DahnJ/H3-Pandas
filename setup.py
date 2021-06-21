@@ -1,9 +1,6 @@
 from setuptools import setup, find_packages
 from os import path
-
-# read version
-with open(path.join('h3pandas', '_version.py')) as f:
-    exec(f.read())
+import versioneer
 
 # read the contents of README file
 this_directory = path.abspath(path.dirname(__file__))
@@ -12,7 +9,8 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="h3pandas",
-    version=__version__,
+    version=versioneer.get_version(),
+    cmdclass=versionner.get_cmdclass(),
     license="MIT",
     description="Integration of H3 and GeoPandas",
     long_description=long_description,
