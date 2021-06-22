@@ -53,7 +53,6 @@ conda install -c dahn h3pandas
 `h3pandas` automatically applies H3 functions to both Pandas Dataframes and GeoPandas Geodataframes
 
 
-
 ```python
 >>> resolution = 10
 >>> df = df.h3.geo_to_h3(resolution)
@@ -94,20 +93,20 @@ often simplifying common workflows into a single command.
 >>> df = df.h3.geo_to_h3_aggregate(3)
 >>> df
 
-| h3_03           |   value |
-|:----------------|--------:|
-| 831e30fffffffff |     102 |
-| 831e34fffffffff |     189 |
-| 831e35fffffffff |    8744 |
-| 831f1bfffffffff |    1040 |
+| h3_03           |   value | geometry        |
+|:----------------|--------:|:----------------|
+| 831e30fffffffff |     102 | POLYGON ((...)) |
+| 831e34fffffffff |     189 | POLYGON ((...)) |
+| 831e35fffffffff |    8744 | POLYGON ((...)) |
+| 831f1bfffffffff |    1040 | POLYGON ((...)) |
 
 # Aggregate to a lower H3 resolution
 >>> df.h3.h3_to_parent_aggregate(2)
 
-| h3_02           |   value |
-|:----------------|--------:|
-| 821e37fffffffff |    9035 |
-| 821f1ffffffffff |    1040 |
+| h3_02           |   value | geometry        |
+|:----------------|--------:|:----------------|
+| 821e37fffffffff |    9035 | POLYGON ((...)) |
+| 821f1ffffffffff |    1040 | POLYGON ((...)) |
 ```
 
 ## API

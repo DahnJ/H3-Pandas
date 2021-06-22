@@ -57,6 +57,10 @@ class H3Accessor:
         Returns
         -------
         (Geo)DataFrame with H3 addresses added
+
+        See Also
+        --------
+        geo_to_h3_aggregate : Extended API method that aggregates points by H3 address
         """
         if isinstance(self._df, gpd.GeoDataFrame):
             lngs = self._df.geometry.x
@@ -88,6 +92,10 @@ class H3Accessor:
         ------
         ValueError
             When an invalid H3 address is encountered
+
+        See Also
+        --------
+        h3_to_geo_boundary : Adds a hexagonal cell
         """
         return self._apply_index_assign(
             h3.h3_to_geo,
@@ -140,6 +148,11 @@ class H3Accessor:
             If True, will explode the resulting list vertically.
             All other columns' values are copied.
             Default: False
+
+        See Also
+        --------
+        k_ring_smoothing : Extended API method that distributes numeric values
+            to the k-ring cells
         """
         func = wrapped_partial(h3.k_ring, k=k)
         column_name = "h3_k_ring"
@@ -176,6 +189,11 @@ class H3Accessor:
         ----------
         resolution : int or None
             H3 resolution. If None, then returns the direct parent of each H3 cell.
+
+        See Also
+        --------
+        h3_to_parent_aggregate : Extended API method that aggregates cells by their
+            parent cell
         """
         # TODO: Test `h3_parent` case
         column = self._format_resolution(resolution) if resolution else "h3_parent"
@@ -210,6 +228,11 @@ class H3Accessor:
             If True, will explode the resulting list vertically.
             All other columns' values are copied.
             Default: False
+
+        See Also
+        --------
+        polyfill_resample : Extended API method that distributes the polygon's values
+            to the H3 cells contained in it
         """
 
         def func(row):
@@ -244,9 +267,6 @@ class H3Accessor:
 
     # H3-Pandas Extended API
     # These methods extend the API to provide a convenient way to simplify workflows
-    # Aggregate methods
-    # These methods extend the API to provide a convenient way to aggregate
-    # the results by their H3 address
 
     def geo_to_h3_aggregate(
         self,
@@ -258,10 +278,6 @@ class H3Accessor:
     ) -> DataFrame:
         """Adds H3 index to DataFrame, groups points with the same index
         and performs `operation`.
-
-        Warning: Geographic information gets lost, returns a DataFrame
-            - if you wish to retain it, consider using `geo_to_h3` instead.
-            - if you with to add H3 geometry, chain with `h3_to_geo_boundary`
 
         pd.DataFrame: uses `lat_col` and `lng_col` (default `lat` and `lng`)
         gpd.GeoDataFrame: uses `geometry`
