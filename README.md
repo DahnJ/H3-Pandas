@@ -49,7 +49,7 @@ conda install -c dahn h3pandas
 >>> import h3pandas
 >>> df = pd.DataFrame({'lat': [50, 51], 'lng': [14, 15]})
 ```
-### H3 api
+### H3 API
 `h3pandas` automatically applies H3 functions to both Pandas Dataframes and GeoPandas Geodataframes
 
 
@@ -73,8 +73,9 @@ conda install -c dahn h3pandas
 | 8a1e2659c2c7fff |    51 |    15 | POLYGON ((...)) |
 ```
 
-### Aggregate functions
-`h3pandas` also provides common aggregations in a simple API.
+### H3-Pandas Extended API
+`h3pandas` also provides some extended functionality out-of-the-box, 
+often simplifying common workflows into a single command.
 
 ```python
 # Set up data

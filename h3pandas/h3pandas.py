@@ -242,8 +242,8 @@ class H3Accessor:
             wrapped_partial(h3.cell_area, unit=unit), "h3_cell_area"
         )
 
-    # TODO: The semantics of this are no longer correct.
-    #  Consider a different naming/description
+    # H3-Pandas Extended API
+    # These methods extend the API to provide a convenient way to simplify workflows
     # Aggregate methods
     # These methods extend the API to provide a convenient way to aggregate
     # the results by their H3 address
