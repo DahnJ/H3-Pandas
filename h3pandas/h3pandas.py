@@ -61,7 +61,7 @@ class H3Accessor:
         See Also
         --------
         geo_to_h3_aggregate : Extended API method that aggregates points by H3 address
-        
+
         Examples
         --------
         >>> df = pd.DataFrame({'lat': [50, 51], 'lng':[14, 15]})
@@ -76,7 +76,8 @@ class H3Accessor:
         0   50   14  881e309739fffff
         1   51   15  881e2659c3fffff
 
-        >>> gdf = gpd.GeoDataFrame({'val': [5, 1]}, geometry=gpd.points_from_xy(x=[14, 15], y=(50, 51)))
+        >>> gdf = gpd.GeoDataFrame({'val': [5, 1]},
+        >>> geometry=gpd.points_from_xy(x=[14, 15], y=(50, 51)))
         >>> gdf.h3.geo_to_h3(8)
                          val                   geometry
         h3_08
@@ -118,10 +119,11 @@ class H3Accessor:
         See Also
         --------
         h3_to_geo_boundary : Adds a hexagonal cell
-        
+
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_to_geo()
                          val                   geometry
         881e309739fffff    5  POINT (14.00037 50.00055)
@@ -149,7 +151,8 @@ class H3Accessor:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_to_geo_boundary()
                          val                                           geometry
         881e309739fffff    5  POLYGON ((13.99527 50.00368, 13.99310 49.99929...
@@ -167,7 +170,8 @@ class H3Accessor:
         """
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_get_resolution()
                          val  h3_resolution
         881e309739fffff    5              8
@@ -180,7 +184,8 @@ class H3Accessor:
         """
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_get_base_cell()
                          val  h3_base_cell
         881e309739fffff    5            15
@@ -222,7 +227,8 @@ class H3Accessor:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.k_ring(1)
                          val                                          h3_k_ring
         881e309739fffff    5  [881e30973dfffff, 881e309703fffff, 881e309707f...
@@ -269,7 +275,8 @@ class H3Accessor:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.hex_ring(1)
                          val                                        h3_hex_ring
         881e309739fffff    5  [881e30973dfffff, 881e309703fffff, 881e309707f...
@@ -307,10 +314,11 @@ class H3Accessor:
         --------
         h3_to_parent_aggregate : Extended API method that aggregates cells by their
             parent cell
-            
+
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_to_parent(5)
                          val            h3_05
         881e309739fffff    5  851e3097fffffff
@@ -330,10 +338,11 @@ class H3Accessor:
         resolution : int or None
             H3 resolution. If none, then returns the child of resolution
             directly below that of each H3 cell
-            
+
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                    index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_to_center_child()
                          val  h3_center_child
         881e309739fffff    5  891e3097383ffff
@@ -362,14 +371,14 @@ class H3Accessor:
         --------
         polyfill_resample : Extended API method that distributes the polygon's values
             to the H3 cells contained in it
-            
+
         Examples
         --------
         >>> from shapely.geometry import box
         >>> gdf = gpd.GeoDataFrame(geometry=[box(0, 0, 1, 1)])
         >>> gdf.h3.polyfill(4)
                                                     geometry                                        h3_polyfill
-        0  POLYGON ((1.00000 0.00000, 1.00000 1.00000, 0....  [84754e3ffffffff, 84754c7ffffffff, 84754c5ffff...
+        0  POLYGON ((1.00000 0.00000, 1.00000 1.00000, 0....  [84754e3ffffffff, 84754c7ffffffff, 84754c5ffff...  # noqa E501
         >>> gdf.h3.polyfill(4, explode=True)
                                                     geometry      h3_polyfill
         0  POLYGON ((1.00000 0.00000, 1.00000 1.00000, 0....  84754e3ffffffff
@@ -407,10 +416,11 @@ class H3Accessor:
         ----------
         unit : str, options: 'km^2', 'm^2', or 'rads^2'
             Unit for area result. Default: 'km^2`
-            
+
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.cell_area()
                          val  h3_cell_area
         881e309739fffff    5      0.695651
@@ -458,7 +468,7 @@ class H3Accessor:
         See Also
         --------
         geo_to_h3 : H3 API method upon which this function builds
-        
+
         Examples
         --------
         >>> df = pd.DataFrame({'lat': [50, 51], 'lng':[14, 15], 'val': [10, 1]})
@@ -523,7 +533,8 @@ class H3Accessor:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.h3_to_parent(1)
                          val            h3_01
         881e309739fffff    5  811e3ffffffffff
@@ -595,7 +606,8 @@ class H3Accessor:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'val': [5, 1]}, index=['881e309739fffff', '881e2659c3fffff'])
+        >>> df = pd.DataFrame({'val': [5, 1]},
+        >>>                   index=['881e309739fffff', '881e2659c3fffff'])
         >>> df.h3.k_ring_smoothing(1)
                               val                                           geometry
         h3_k_ring
