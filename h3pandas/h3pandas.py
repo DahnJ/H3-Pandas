@@ -88,13 +88,13 @@ class H3Accessor:
         if isinstance(self._df, gpd.GeoDataFrame):
             lngs = self._df.geometry.x
             lats = self._df.geometry.y
-            h3addresses = [
-                h3.geo_to_h3(lat, lng, resolution) for lat, lng in zip(lats, lngs)
-            ]
         else:
-            h3addresses = self._df.apply(
-                lambda x: h3.geo_to_h3(x[lat_col], x[lng_col], resolution), axis=1
-            )
+            lngs = self._df[lng_col]
+            lats = self._df[lat_col]
+
+        h3addresses = [
+            h3.geo_to_h3(lat, lng, resolution) for lat, lng in zip(lats, lngs)
+        ]
 
         colname = self._format_resolution(resolution)
         assign_arg = {colname: h3addresses}
