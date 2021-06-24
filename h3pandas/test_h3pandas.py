@@ -29,7 +29,13 @@ def basic_geodataframe(basic_dataframe):
 @pytest.fixture
 def basic_geodataframe_polygon(basic_geodataframe):
     geom = box(0, 0, 1, 1)
-    return basic_geodataframe.assign(geometry=[geom, geom])
+    return gpd.GeoDataFrame(geometry=[geom], crs="epsg:4326")
+
+
+@pytest.fixture
+def basic_geodataframe_polygons(basic_geodataframe):
+    geoms = [box(0, 0, 1, 1), box(0, 0, 2, 2)]
+    return gpd.GeoDataFrame(geometry=geoms, crs="epsg:4326")
 
 
 @pytest.fixture
@@ -233,6 +239,19 @@ def test_polyfill_explode(h3_geodataframe_with_values):
     assert len(result) == len(h3_geodataframe_with_values) * 7
     assert set(result["h3_polyfill"]) == expected_indices
     assert not result["val"].isna().any()
+
+
+def test_polyfill_explode_unequal_lengths(basic_geodataframe_polygons):
+    expected_indices = {
+        "83754efffffffff",
+        "83756afffffffff",
+        "83754efffffffff",
+        "837541fffffffff",
+        "83754cfffffffff",
+    }
+    result = basic_geodataframe_polygons.h3.polyfill(3, explode=True)
+    assert len(result) == 5
+    assert set(result["h3_polyfill"]) == expected_indices
 
 
 def test_cell_area(indexed_dataframe):

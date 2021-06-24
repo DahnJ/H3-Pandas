@@ -394,16 +394,13 @@ class H3Accessor:
         def func(row):
             return list(polyfill(row.geometry, resolution, True))
 
-        expand = "expand" if explode else "reduce"
-        result = self._df.apply(func, axis=1, result_type=expand)
+        result = self._df.apply(func, axis=1)
 
         if not explode:
             assign_args = {COLUMN_H3_POLYFILL: result}
             return self._df.assign(**assign_args)
 
-        result = (
-            result.stack().to_frame(COLUMN_H3_POLYFILL).reset_index(level=1, drop=True)
-        )
+        result = result.explode().to_frame(COLUMN_H3_POLYFILL)
 
         return self._df.join(result)
 
