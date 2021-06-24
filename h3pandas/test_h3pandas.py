@@ -4,9 +4,11 @@ import pytest
 from shapely.geometry import Polygon, box
 import pandas as pd
 import geopandas as gpd
+from geopandas.testing import assert_geodataframe_equal
 
 # TODO: Make sure methods are tested both for
 #  DataFrame and GeoDataFrame (where applicable)
+# TODO: Test return_geometry functionality
 
 # Fixtures
 
@@ -100,7 +102,7 @@ def test_h3_to_geo(indexed_dataframe):
     geometry = gpd.points_from_xy(x=lngs, y=lats, crs="epsg:4326")
     expected = gpd.GeoDataFrame(indexed_dataframe, geometry=geometry)
     result = indexed_dataframe.h3.h3_to_geo()
-    pd.testing.assert_frame_equal(expected, result)
+    assert_geodataframe_equal(expected, result)
 
 
 def test_h3_to_geo_boundary(indexed_dataframe):
@@ -126,7 +128,7 @@ def test_h3_to_geo_boundary(indexed_dataframe):
 
     result = indexed_dataframe.h3.h3_to_geo_boundary()
     expected = gpd.GeoDataFrame(indexed_dataframe, geometry=geometry, crs="epsg:4326")
-    pd.testing.assert_frame_equal(expected, result)
+    assert_geodataframe_equal(expected, result, check_less_precise=True)
 
 
 def test_h3_to_geo_boundary_wrong_index(indexed_dataframe):
@@ -154,7 +156,7 @@ def test_h3_to_center_child(indexed_dataframe):
 def test_empty_polyfill(h3_geodataframe_with_values):
     expected = h3_geodataframe_with_values.assign(h3_polyfill=[list(), list(), list()])
     result = h3_geodataframe_with_values.h3.polyfill(1)
-    pd.testing.assert_frame_equal(expected, result)
+    assert_geodataframe_equal(expected, result)
 
 
 def test_polyfill(h3_geodataframe_with_values):
@@ -192,7 +194,7 @@ def test_polyfill(h3_geodataframe_with_values):
     result["h3_polyfill"] = result["h3_polyfill"].apply(
         set
     )  # Convert to set for testing
-    pd.testing.assert_frame_equal(expected, result)
+    assert_geodataframe_equal(expected, result)
 
 
 def test_polyfill_explode(h3_geodataframe_with_values):
@@ -435,7 +437,7 @@ def test_h3_to_parent_aggregate(h3_geodataframe_with_values):
         {"val": [5, 3]}, geometry=geometry, index=index, crs="epsg:4326"
     )
 
-    pd.testing.assert_frame_equal(expected, result)
+    assert_geodataframe_equal(expected, result)
 
 
 def test_h3_to_parent_aggregate_no_geometry(h3_dataframe_with_values):
