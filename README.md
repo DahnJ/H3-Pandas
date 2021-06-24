@@ -7,8 +7,8 @@
 Integrates [H3](https://github.com/uber/h3-py) with  [GeoPandas](https://github.com/geopandas/geopandas)
 and [Pandas](https://github.com/pandas-dev/pandas).
 
-[![image](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DahnJ/H3-Pandas/blob/master/notebook/example.ipynb)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2Fexample.ipynb)
+[![image](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DahnJ/H3-Pandas/blob/master/notebook/00-intro.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2F00-intro.ipynb)
 [![image](https://img.shields.io/pypi/v/h3pandas.svg)](https://pypi.python.org/pypi/h3pandas)
 [![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
 [![Anaconda-Server Badge](https://anaconda.org/dahn/h3pandas/badges/downloads.svg)](https://anaconda.org/dahn/h3pandas)
@@ -20,12 +20,12 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 ---
 
 <h3 align="center">
-  ⬢ <a href="https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2Fexample.ipynb">Try it out</a> ⬢
+  ⬢ <a href="https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2F00-intro.ipynb">Try it out</a> ⬢
 </h3>
 
 ---
 <p align="center">
-    <a href=""><img src="https://i.imgur.com/FLeAqjL.gif" alt="example usage" width="450"></a>
+    <a href=""><img src="https://i.imgur.com/6XrsLOJ.gif" alt="example usage" width="450"></a>
 </p>
 
 
@@ -49,9 +49,8 @@ conda install -c dahn h3pandas
 >>> import h3pandas
 >>> df = pd.DataFrame({'lat': [50, 51], 'lng': [14, 15]})
 ```
-### H3 api
+### H3 API
 `h3pandas` automatically applies H3 functions to both Pandas Dataframes and GeoPandas Geodataframes
-
 
 
 ```python
@@ -73,8 +72,9 @@ conda install -c dahn h3pandas
 | 8a1e2659c2c7fff |    51 |    15 | POLYGON ((...)) |
 ```
 
-### Aggregate functions
-`h3pandas` also provides common aggregations in a simple API.
+### H3-Pandas Extended API
+`h3pandas` also provides some extended functionality out-of-the-box, 
+often simplifying common workflows into a single command.
 
 ```python
 # Set up data
@@ -93,20 +93,20 @@ conda install -c dahn h3pandas
 >>> df = df.h3.geo_to_h3_aggregate(3)
 >>> df
 
-| h3_03           |   value |
-|:----------------|--------:|
-| 831e30fffffffff |     102 |
-| 831e34fffffffff |     189 |
-| 831e35fffffffff |    8744 |
-| 831f1bfffffffff |    1040 |
+| h3_03           |   value | geometry        |
+|:----------------|--------:|:----------------|
+| 831e30fffffffff |     102 | POLYGON ((...)) |
+| 831e34fffffffff |     189 | POLYGON ((...)) |
+| 831e35fffffffff |    8744 | POLYGON ((...)) |
+| 831f1bfffffffff |    1040 | POLYGON ((...)) |
 
 # Aggregate to a lower H3 resolution
 >>> df.h3.h3_to_parent_aggregate(2)
 
-| h3_02           |   value |
-|:----------------|--------:|
-| 821e37fffffffff |    9035 |
-| 821f1ffffffffff |    1040 |
+| h3_02           |   value | geometry        |
+|:----------------|--------:|:----------------|
+| 821e37fffffffff |    9035 | POLYGON ((...)) |
+| 821f1ffffffffff |    1040 | POLYGON ((...)) |
 ```
 
 ## API

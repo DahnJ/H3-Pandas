@@ -1,4 +1,6 @@
 # /bin/bash
 make clean
-make html # behaves weirdly the first time, investigate later
-# make html
+cp -r ../notebook source/notebook
+make html 
+rm -r source/notebook
+xdg-open build/html/index.html

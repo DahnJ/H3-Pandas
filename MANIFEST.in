@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+graft h3pandas
+recursive-include * *.py[co]
+include versioneer.py
+include h3pandas/_version.py

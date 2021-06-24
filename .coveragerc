@@ -1,6 +1,10 @@
 [run]
 branch = True
 source = h3_pandas
+omit = 
+    setup.py
+    versioneer.py
+    h3pandas/_version.py
 
 [report]
 

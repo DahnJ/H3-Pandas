@@ -2,11 +2,16 @@ name: h3pandas-env
 channels: 
   - conda-forge
 dependencies:
-  - python=3.8
-  - shapely=1.7.*
-  - h3-py=3.6.*
+  # Required
+  - python=3.9
+  - shapely
+  - h3-py=3.7.*
   - geopandas=0.9.*
-  - pandas=1.2.*
-  - pytest=6.2.*
-  - pytest-cov=2.12.*
-  - matplotlib=3.3.*
+  - pandas
+  # For Python <3.8
+  # - typing_extensions
+  # Test
+  - pytest
+  - pytest-cov
+  # Notebooks
+  - matplotlib

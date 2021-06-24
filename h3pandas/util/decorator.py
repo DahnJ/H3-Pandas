@@ -1,4 +1,4 @@
-from functools import wraps, partial, update_wrapper
+from functools import wraps
 from typing import Callable
 from h3 import H3CellError
 
@@ -12,7 +12,8 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
 
     Returns
     -------
-    The return value of f, or a ValueError if f threw ValueError, TypeError, or H3CellError
+    The return value of f, or a ValueError if f threw ValueError, TypeError,
+    or H3CellError
 
     Raises
     ------
@@ -25,31 +26,30 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
         try:
             return f(*args, **kwargs)
         except (TypeError, ValueError, H3CellError) as e:
-            message = f"H3 method raised an error. Is the H3 address correct?"
+            message = "H3 method raised an error. Is the H3 address correct?"
             message += f"\nCaller: {f.__name__}({_print_signature(*args, **kwargs)})"
-            message += f'\nOriginal error: {repr(e)}'
+            message += f"\nOriginal error: {repr(e)}"
             raise ValueError(message)
 
     return safe_f
 
 
 # TODO: Test
-def doc_standard(column: str, description: str) -> Callable:
+def doc_standard(column_name: str, description: str) -> Callable:
     """Wrapper to provide a standard apply-to-H3-index docstring"""
-
 
     def doc_decorator(f):
         @wraps(f)
         def doc_f(*args, **kwargs):
             return f(*args, **kwargs)
 
-        parameters = f.__doc__ or ''
+        parameters = f.__doc__ or ""
 
-        doc = f"""Adds the column `{column}` {description}. Assumes H3 index.
+        doc = f"""Adds the column `{column_name}` {description}. Assumes H3 index.
         {parameters}
         Returns
         -------
-        Geo(DataFrame) with `{column}` column added
+        Geo(DataFrame) with `{column_name}` column added
 
         Raises
         ------
@@ -63,19 +63,11 @@ def doc_standard(column: str, description: str) -> Callable:
     return doc_decorator
 
 
-# TODO: Doesn't belong here, not a decorator
-def wrapped_partial(func, *args, **kwargs):
-    """Properly wrapped partial function"""
-    partial_func = partial(func, *args, **kwargs)
-    update_wrapper(partial_func, func)
-    return partial_func
-
-
 def _print_signature(*args, **kwargs):
     signature = []
     if args:
-        signature.append(', '.join([repr(a) for a in args]))
+        signature.append(", ".join([repr(a) for a in args]))
     if kwargs:
-        signature.append(', '.join({f'{repr(k)}={repr(v)}' for k, v in kwargs.items()}))
+        signature.append(", ".join({f"{repr(k)}={repr(v)}" for k, v in kwargs.items()}))
 
-    return ', '.join(signature)
+    return ", ".join(signature)
