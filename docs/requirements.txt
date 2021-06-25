@@ -2,8 +2,9 @@ Sphinx==3.5.4
 pydata-sphinx-theme==0.6.3
 numpydoc==1.1.0
 shapely==1.7.*
-h3==3.6.*
+h3==3.7.*
 geopandas==0.9.*
 pandas==1.2.*
 typing-extensions==3.10.*
 numpy==1.20.*
+nbsphinx
