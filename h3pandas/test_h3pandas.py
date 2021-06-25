@@ -108,7 +108,7 @@ def test_h3_to_geo(indexed_dataframe):
     geometry = gpd.points_from_xy(x=lngs, y=lats, crs="epsg:4326")
     expected = gpd.GeoDataFrame(indexed_dataframe, geometry=geometry)
     result = indexed_dataframe.h3.h3_to_geo()
-    assert_geodataframe_equal(expected, result)
+    assert_geodataframe_equal(expected, result, check_less_precise=True)
 
 
 def test_h3_to_geo_boundary(indexed_dataframe):
