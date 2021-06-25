@@ -13,6 +13,7 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 [![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
 [![Anaconda-Server Badge](https://anaconda.org/dahn/h3pandas/badges/downloads.svg)](https://anaconda.org/dahn/h3pandas)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=stable)](https://pip.pypa.io/en/stable/?badge=stable)
 
 &nbsp;
 
