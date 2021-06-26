@@ -38,8 +38,7 @@ pip install h3pandas
 
 ### conda
 ```bash
-conda config --add channels conda-forge  # Most dependencies are on conda-forge
-conda install -c dahn h3pandas
+conda install -c conda-forge h3pandas
 ```
 
 ## Usage examples
