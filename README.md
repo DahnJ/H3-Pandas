@@ -43,15 +43,15 @@ conda install -c conda-forge h3pandas
 
 ## Usage examples
 
+### H3 API
+`h3pandas` automatically applies H3 functions to both Pandas Dataframes and GeoPandas Geodataframes
+
 ```python
 # Prepare data
 >>> import pandas as pd
 >>> import h3pandas
 >>> df = pd.DataFrame({'lat': [50, 51], 'lng': [14, 15]})
 ```
-### H3 API
-`h3pandas` automatically applies H3 functions to both Pandas Dataframes and GeoPandas Geodataframes
-
 
 ```python
 >>> resolution = 10

@@ -13,10 +13,30 @@ H3-Pandas
 
 Welcome to the documentation of H3-Pandas!
 
+H3-Pandas integrate `H3`_, the hexagonal geospatial indexing system,
+with `Pandas`_ and `GeoPandas`_.
+
+
+Contents
+--------
 .. toctree::
     :titlesonly:
 
+    installation
     h3pandas
     Notebook: Introduction <notebook/00-intro>
     Notebook: Unified Data Layers <notebook/01-unified-data-layers>
-    
+
+
+Example
+-------
+
+.. image:: https://i.imgur.com/6XrsLOJ.gif
+   :width: 500px
+   :align: center
+
+
+
+.. _H3: https://h3geo.org/
+.. _Pandas: https://pandas.pydata.org/
+.. _GeoPandas: https://geopandas.org/
