@@ -109,8 +109,14 @@ often simplifying common workflows into a single command.
 | 821f1ffffffffff |    1040 | POLYGON ((...)) |
 ```
 
+
+### Further examples
+For more examples, see the 
+[example notebooks](https://nbviewer.jupyter.org/github/DahnJ/H3-Pandas/tree/master/notebook/).
+
 ## API
-For a full API documentation and more usage examples, see the [documentation](https://h3-pandas.readthedocs.io/en/latest/).
+For a full API documentation and more usage examples, see the 
+[documentation](https://h3-pandas.readthedocs.io/en/latest/).
 
 ## Development
 This package is under active development, **suggestions and contributions are very welcome**!
