@@ -31,7 +31,7 @@ Contents
 Example
 -------
 
-.. image:: https://i.imgur.com/6XrsLOJ.gif
+.. image:: https://i.imgur.com/GZWsC8G.gif
    :width: 500px
    :align: center
 
