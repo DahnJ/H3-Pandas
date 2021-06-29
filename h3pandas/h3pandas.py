@@ -1,4 +1,5 @@
 from typing import Union, Callable, Sequence, Any
+import warnings
 
 # Literal is not supported by Python <3.8
 try:
@@ -564,7 +565,7 @@ class H3Accessor:
         return grouped.h3.h3_to_geo_boundary() if return_geometry else grouped
 
     # TODO: Needs to allow for handling relative values (e.g. percentage)
-    # TODO: Will likely fail in many cases (what are the existing columns?)
+    # TODO: Will possibly fail in many cases (what are the existing columns?)
     # TODO: New cell behaviour
     def k_ring_smoothing(
         self,
@@ -703,9 +704,6 @@ class H3Accessor:
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
 
-    # TODO: Test
-    # TODO: Provide a warning if sums don't agree or something like that?
-    #  (For uncovered polygons)
     def polyfill_resample(
         self, resolution: int, return_geometry: bool = True
     ) -> AnyDataFrame:
@@ -745,6 +743,15 @@ class H3Accessor:
         8475413ffffffff      0  POLYGON ((0.91001 0.70597, 1.00521 0.90497, 0....
         """
         result = self._df.h3.polyfill(resolution, explode=True)
+        uncovered_rows = result[COLUMN_H3_POLYFILL].isna()
+        n_uncovered_rows = uncovered_rows.sum()
+        if n_uncovered_rows > 0:
+            warnings.warn(
+                f"{n_uncovered_rows} rows did not generate a H3 cell."
+                "Consider using a finer resolution."
+            )
+            result = result.loc[~uncovered_rows]
+
         result = result.reset_index().set_index(COLUMN_H3_POLYFILL)
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
