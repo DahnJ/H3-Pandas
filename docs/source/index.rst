@@ -13,7 +13,7 @@ H3-Pandas
 
 Welcome to the documentation of H3-Pandas!
 
-H3-Pandas integrate `H3`_, the hexagonal geospatial indexing system,
+H3-Pandas integrates `H3`_, the hexagonal geospatial indexing system,
 with `Pandas`_ and `GeoPandas`_.
 
 
