@@ -6,6 +6,7 @@ import pandas as pd
 import geopandas as gpd
 from geopandas.testing import assert_geodataframe_equal
 
+
 # TODO: Make sure methods are tested both for
 #  DataFrame and GeoDataFrame (where applicable)
 # TODO: Test return_geometry functionality
@@ -542,3 +543,11 @@ def test_polyfill_resample(h3_geodataframe_with_values):
     assert set(result.index) == expected_indices
     assert set(result["val"]) == expected_values
     assert not result["val"].isna().any()
+
+
+def test_polyfill_resample_uncovered_rows(basic_geodataframe_polygons):
+    basic_geodataframe_polygons.loc[2] = box(0, 0, 3, 3)
+    with pytest.warns(UserWarning):
+        result = basic_geodataframe_polygons.h3.polyfill_resample(2)
+
+    assert len(result) == 2
