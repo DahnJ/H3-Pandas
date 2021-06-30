@@ -11,7 +11,7 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DahnJ/H3-Pandas/HEAD?filepath=%2Fnotebook%2F00-intro.ipynb)
 [![image](https://img.shields.io/pypi/v/h3pandas.svg)](https://pypi.python.org/pypi/h3pandas)
 [![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
-[![Anaconda-Server Badge](https://anaconda.org/dahn/h3pandas/badges/downloads.svg)](https://anaconda.org/dahn/h3pandas)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/h3pandas/badges/downloads.svg)](https://anaconda.org/conda-forge/h3pandas)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=stable)](https://pip.pypa.io/en/stable/?badge=stable)
 
