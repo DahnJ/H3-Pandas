@@ -29,7 +29,6 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 ## Installation
 ### pip
 [![image](https://img.shields.io/pypi/v/h3pandas.svg)](https://pypi.python.org/pypi/h3pandas)
-[![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
 ```bash
 pip install h3pandas
 ```
