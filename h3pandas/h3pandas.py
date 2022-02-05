@@ -44,6 +44,8 @@ class H3Accessor:
         pd.DataFrame: uses `lat_col` and `lng_col` (default `lat` and `lng`)
         gpd.GeoDataFrame: uses `geometry`
 
+        Assumes coordinates in epsg=4326.
+
         Parameters
         ----------
         resolution : int
