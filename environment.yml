@@ -6,7 +6,7 @@ dependencies:
   - python=3.9
   - shapely
   - h3-py=3.7.*
-  - geopandas=0.9.*
+  - geopandas>=0.9.*
   - pandas
   # For Python <3.8
   # - typing_extensions
