@@ -257,7 +257,7 @@ class H3Accessor:
         func = wrapped_partial(h3.k_ring, k=k)
         column_name = "h3_k_ring"
         if explode:
-            return self.__apply_index_explode(func, column_name, list)
+            return self._apply_index_explode(func, column_name, list)
         return self._apply_index_assign(func, column_name, list)
 
     @doc_standard(
@@ -302,7 +302,7 @@ class H3Accessor:
         func = wrapped_partial(h3.hex_ring, k=k)
         column_name = "h3_hex_ring"
         if explode:
-            return self.__apply_index_explode(func, column_name, list)
+            return self._apply_index_explode(func, column_name, list)
         return self._apply_index_assign(func, column_name, list)
 
     @doc_standard("h3_{resolution}", "containing the parent of each H3 address")
@@ -790,7 +790,7 @@ class H3Accessor:
         assign_args = {column_name: result}
         return finalizer(self._df.assign(**assign_args))
 
-    def __apply_index_explode(
+    def _apply_index_explode(
         self,
         func: Callable,
         column_name: str,
