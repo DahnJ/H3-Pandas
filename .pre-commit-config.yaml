@@ -10,3 +10,9 @@ repos:
     hooks:
       - id: flake8
         language_version: python3
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v1.16.0
+    hooks:
+      - id: codespell
+        language_version: python3
