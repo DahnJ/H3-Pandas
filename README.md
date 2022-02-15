@@ -29,7 +29,6 @@ and [Pandas](https://github.com/pandas-dev/pandas).
 ## Installation
 ### pip
 [![image](https://img.shields.io/pypi/v/h3pandas.svg)](https://pypi.python.org/pypi/h3pandas)
-[![image](https://pepy.tech/badge/h3pandas)](https://pepy.tech/project/h3pandas)
 ```bash
 pip install h3pandas
 ```
@@ -119,13 +118,16 @@ For a full API documentation and more usage examples, see the
 [documentation](https://h3-pandas.readthedocs.io/en/latest/).
 
 ## Development
-This package is under active development, **suggestions and contributions are very welcome**!
+H3-Pandas cover the basics of the H3 API, but there are still many possible improvements.
+
+**Any suggestions and contributions are very welcome**!
 
 In particular, the next steps are:
-- [ ] Improve documentation, examples
-- [ ] Greater coverage of the H3 API
+- [ ] Improvements & stability of the "Extended API", e.g. `k_ring_smoothing`. 
 
 Additional possible directions
 - [ ] Allow for alternate h3-py APIs such as [memview_int](https://github.com/uber/h3-py#h3apimemview_int)
 - [ ] Performance improvements through [Cythonized h3-py](https://github.com/uber/h3-py/pull/147)
-- [ ] [Dask](https://github.com/dask/dask) integration trough [dask-geopandas](https://github.com/geopandas/dask-geopandas) (experimental as of now)
+- [ ] [Dask](https://github.com/dask/dask) integration through [dask-geopandas](https://github.com/geopandas/dask-geopandas) (experimental as of now)
+
+See [issues](https://github.com/DahnJ/H3-Pandas/issues) for more.
