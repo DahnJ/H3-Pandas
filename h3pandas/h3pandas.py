@@ -670,7 +670,7 @@ class H3Accessor:
 
         # Unweighted case
         if weights is None:
-            result = (
+            result = pd.DataFrame(
                 self._df.h3.k_ring(k, explode=True)
                 .groupby("h3_k_ring")
                 .sum()
