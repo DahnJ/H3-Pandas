@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   # Required
-  - python=3.9
+  - python>=3.9
   - shapely
   - h3-py=3.7.*
   - geopandas>=0.9.*
