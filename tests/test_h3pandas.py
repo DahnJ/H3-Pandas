@@ -145,10 +145,17 @@ class TestH3ToGeoBoundary:
 
 
 class TestH3ToParent:
-    def test_h3_to_parent(self, h3_dataframe_with_values):
+    def test_h3_to_parent_level_1(self, h3_dataframe_with_values):
         h3_parent = "811f3ffffffffff"
         result = h3_dataframe_with_values.h3.h3_to_parent(1)
         expected = h3_dataframe_with_values.assign(h3_01=h3_parent)
+
+        pd.testing.assert_frame_equal(expected, result)
+
+    def test_h3_to_direct_parent(self, h3_dataframe_with_values):
+        h3_parents = ["881f1d4817fffff", "881f1d4817fffff", "881f1d4811fffff"]
+        result = h3_dataframe_with_values.h3.h3_to_parent()
+        expected = h3_dataframe_with_values.assign(h3_parent=h3_parents)
 
         pd.testing.assert_frame_equal(expected, result)
 
