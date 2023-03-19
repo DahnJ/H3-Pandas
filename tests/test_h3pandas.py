@@ -159,6 +159,13 @@ class TestH3ToParent:
 
         pd.testing.assert_frame_equal(expected, result)
 
+    def test_h3_to_parent_level_0(self, h3_dataframe_with_values):
+        h3_parent = "801ffffffffffff"
+        result = h3_dataframe_with_values.h3.h3_to_parent(0)
+        expected = h3_dataframe_with_values.assign(h3_00=h3_parent)
+
+        pd.testing.assert_frame_equal(expected, result)
+
 
 class TestH3ToCenterChild:
     def test_h3_to_center_child(self, indexed_dataframe):

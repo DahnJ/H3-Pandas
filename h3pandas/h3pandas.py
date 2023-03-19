@@ -324,7 +324,11 @@ class H3Accessor:
         881e2659c3fffff    1  851e265bfffffff
         """
         # TODO: Test `h3_parent` case
-        column = self._format_resolution(resolution) if resolution else "h3_parent"
+        column = (
+            self._format_resolution(resolution)
+            if resolution is not None
+            else "h3_parent"
+        )
         return self._apply_index_assign(
             wrapped_partial(h3.h3_to_parent, res=resolution), column
         )
