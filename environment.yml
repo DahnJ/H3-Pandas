@@ -8,10 +8,5 @@ dependencies:
   - h3-py=3.7.*
   - geopandas>=0.9.*
   - pandas
-  # For Python <3.8
-  # - typing_extensions
-  # Test
-  - pytest
-  - pytest-cov
   # Notebooks
   - matplotlib
