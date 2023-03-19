@@ -31,24 +31,22 @@ def line():
     return LineString([(0, 0), (1, 0), (1, 1)])
 
 
-def test_polyfill_polygon(polygon):
-    expected = set(["811e3ffffffffff"])
-    result = polyfill(polygon, 1)
-    assert expected == result
+class TestPolyfill:
+    def test_polyfill_polygon(self, polygon):
+        expected = set(["811e3ffffffffff"])
+        result = polyfill(polygon, 1)
+        assert expected == result
 
+    def test_polyfill_multipolygon(self, multipolygon):
+        expected = set(["811e3ffffffffff", "811f3ffffffffff"])
+        result = polyfill(multipolygon, 1)
+        assert expected == result
 
-def test_polyfill_multipolygon(multipolygon):
-    expected = set(["811e3ffffffffff", "811f3ffffffffff"])
-    result = polyfill(multipolygon, 1)
-    assert expected == result
+    def test_polyfill_polygon_with_hole(self, polygon_with_hole):
+        expected = set()
+        result = polyfill(polygon_with_hole, 1)
+        assert expected == result
 
-
-def test_polyfill_polygon_with_hole(polygon_with_hole):
-    expected = set()
-    result = polyfill(polygon_with_hole, 1)
-    assert expected == result
-
-
-def test_polyfill_wrong_type(line):
-    with pytest.raises(TypeError, match=".*Unknown type.*"):
-        polyfill(line, 1)
+    def test_polyfill_wrong_type(self, line):
+        with pytest.raises(TypeError, match=".*Unknown type.*"):
+            polyfill(line, 1)
