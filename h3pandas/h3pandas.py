@@ -1,11 +1,7 @@
 from typing import Union, Callable, Sequence, Any
 import warnings
 
-# Literal is not supported by Python <3.8
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
+from typing import Literal
 
 import numpy as np
 import shapely
