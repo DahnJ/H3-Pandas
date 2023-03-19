@@ -1,6 +1,6 @@
 from shapely.geometry import Polygon, MultiPolygon, LineString
 import pytest
-from .shapely import polyfill
+from h3pandas.util.shapely import polyfill
 
 
 @pytest.fixture

@@ -3,15 +3,15 @@ channels:
   - conda-forge
 dependencies:
   # Required
-  - python=3.9
+  - python>=3.9
   - shapely
-  - h3-py=3.7.*
   - geopandas>=0.9.*
   - pandas
-  # For Python <3.8
-  # - typing_extensions
-  # Test
-  - pytest
-  - pytest-cov
   # Notebooks
   - matplotlib
+  # Pip
+  - pip
+  - pip:
+    # Installing through pip to avoid segfault on Apple Silicon
+    # https://github.com/uber/h3-py/issues/313
+    - h3==3.7.6

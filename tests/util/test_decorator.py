@@ -1,7 +1,7 @@
 from h3 import h3
 import pytest
 
-from .decorator import catch_invalid_h3_address
+from h3pandas.util.decorator import catch_invalid_h3_address
 
 
 def test_catch_invalid_h3_address():

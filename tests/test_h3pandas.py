@@ -1,4 +1,4 @@
-from . import h3pandas  # noqa: F401
+from h3pandas import h3pandas  # noqa: F401
 from h3 import h3
 import pytest
 from shapely.geometry import Polygon, box
@@ -546,7 +546,7 @@ def test_polyfill_resample(h3_geodataframe_with_values):
 
 
 def test_polyfill_resample_uncovered_rows(basic_geodataframe_polygons):
-    basic_geodataframe_polygons.loc[2] = box(0, 0, 3, 3)
+    basic_geodataframe_polygons.iloc[1] = box(0, 0, 3, 3)
     with pytest.warns(UserWarning):
         result = basic_geodataframe_polygons.h3.polyfill_resample(2)
 
