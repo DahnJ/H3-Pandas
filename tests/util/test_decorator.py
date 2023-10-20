@@ -1,7 +1,7 @@
 from h3 import h3
 import pytest
 
-from h3pandas.util.decorator import catch_invalid_h3_address
+from h3pandas.util.decorator import catch_invalid_h3_address, sequential_deduplication
 
 
 class TestCatchInvalidH3Address:
@@ -18,3 +18,14 @@ class TestCatchInvalidH3Address:
 
         with pytest.raises(ValueError):
             safe_h3_to_parent("891f1d48177fff1")  # Originally H3CellError
+
+
+class TestSequentialDeduplication:
+    def test_catch_sequential_duplicate_h3_addresses(self):
+        @sequential_deduplication
+        def function_taking_iterator(iterator):
+            yield from iterator
+
+        _input = [1, 1, 2, 3, 3, 4, 5, 4, 3, 3, 2, 1, 1]
+        result = function_taking_iterator(_input)
+        assert list(result) == [1, 2, 3, 4, 5, 4, 3, 2, 1]

@@ -12,10 +12,10 @@ from h3 import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
-from .const import COLUMN_H3_POLYFILL
+from .const import COLUMN_H3_POLYFILL, COLUMN_H3_LINETRACE
 from .util.decorator import catch_invalid_h3_address, doc_standard
 from .util.functools import wrapped_partial
-from .util.shapely import polyfill
+from .util.shapely import polyfill, linetrace
 
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
@@ -757,6 +757,43 @@ class H3Accessor:
         result = result.reset_index().set_index(COLUMN_H3_POLYFILL)
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
+
+    def linetrace(
+        self, resolution : int, return_geometry: bool = True, explode: bool = False
+    ) -> AnyDataFrame:
+        """Experimental. An H3 cell representation of a (Multi)LineString,
+        which permits repeated cells, but not if they are repeated in
+        immediate sequence.
+
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        return_geometry: bool
+            (Optional) Whether to add a `geometry` column with the hexagonal cells.
+            Default = True
+        explode : bool
+            If True, will explode the resulting list vertically.
+            All other columns' values are copied.
+            Default: False
+
+        Returns
+        -------
+        (Geo)DataFrame with H3 cells with centroids within the input polygons.
+
+        Examples
+        --------
+        TODO
+        """
+        def func(row):
+            return list(linetrace(row.geometry, resolution))
+
+        result = self._df.apply(func, axis=1)
+
+        assign_args = {COLUMN_H3_LINETRACE: result}
+        return self._df.assign(**assign_args)
+
+        return self._df.join(result)
 
     # Private methods
 
