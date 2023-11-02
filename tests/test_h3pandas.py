@@ -34,7 +34,7 @@ def basic_geodataframe_polygon(basic_geodataframe):
 
 
 @pytest.fixture
-def basic_geodataframe_linestring(basic_geodataframe):
+def basic_geodataframe_linestring():
     geom = LineString([
         (174.793092, -37.005372), (175.621138, -40.323142)
     ])
@@ -103,18 +103,10 @@ def h3_geodataframe_with_values(h3_dataframe_with_values):
         h3_dataframe_with_values, geometry=geometry, crs="epsg:4326"
     )
 
-# @pytest.fixture
-# def h3_geodataframe_with_polyline_values(basic_geodataframe_linestring):
-#     """GeoDataFrame with resolution 9 H3 index, values, and one LineString geometry"""
-#     geometry = LineString([
-#         h3.h3_to_geo(h) for h in h3_dataframe_with_values.index
-#     ])
-#     print(gpd.GeoDataFrame(
-#         h3_dataframe_with_values, geometry=geometry, crs="epsg:4326"
-#     ))
-#     return gpd.GeoDataFrame(
-#         h3_dataframe_with_values, geometry=geometry, crs="epsg:4326"
-#     )
+
+@pytest.fixture
+def h3_geodataframe_with_polyline_values(basic_geodataframe_linestring):
+    return basic_geodataframe_linestring.assign(val=10)
 
 
 # Tests: H3 API
@@ -327,6 +319,52 @@ class TestLineTrace:
         ]
         assert len(result.iloc[0]["h3_linetrace"]) == 5
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
+
+    def test_linetrace_explode(self, basic_geodataframe_linestring):
+        result = basic_geodataframe_linestring.h3.linetrace(3, explode=True)
+        expected_indices = [
+            "83bb50fffffffff",
+            "83bb54fffffffff",
+            "83bb72fffffffff",
+            "83bb0dfffffffff",
+            "83bb2bfffffffff"
+        ]
+        assert result.shape == (5, 2)
+        assert result.iloc[0]['h3_linetrace'] == expected_indices[0]
+        assert result.iloc[-1]['h3_linetrace'] == expected_indices[-1]
+
+    def test_linetrace_with_values(self, h3_geodataframe_with_polyline_values):
+        result = h3_geodataframe_with_polyline_values.h3.linetrace(3)
+        expected_indices = [
+            "83bb50fffffffff",
+            "83bb54fffffffff",
+            "83bb72fffffffff",
+            "83bb0dfffffffff",
+            "83bb2bfffffffff"
+        ]
+        assert result.shape == (1, 3)
+        assert 'val' in result.columns
+        assert result.iloc[0]['val'] == 10
+        assert len(result.iloc[0]["h3_linetrace"]) == 5
+        assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
+
+    def test_linetrace_with_values_explode(self,
+                                           h3_geodataframe_with_polyline_values):
+        result = h3_geodataframe_with_polyline_values.h3.linetrace(3, explode=True)
+        expected_indices = [
+            "83bb50fffffffff",
+            "83bb54fffffffff",
+            "83bb72fffffffff",
+            "83bb0dfffffffff",
+            "83bb2bfffffffff"
+        ]
+        print(result)
+        assert result.shape == (5, 3)
+        assert 'val' in result.columns
+        assert result.iloc[0]['val'] == 10
+        assert result.iloc[0]["h3_linetrace"] == expected_indices[0]
+        assert result.iloc[-1]['h3_linetrace'] == expected_indices[-1]
+        assert not result["val"].isna().any()
 
     def test_linetrace_multiline(self, basic_geodataframe_multilinestring):
         result = basic_geodataframe_multilinestring.h3.linetrace(2)
