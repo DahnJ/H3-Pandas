@@ -376,31 +376,55 @@ class TestLineTrace:
             "82ba27fffffffff", "82bb1ffffffffff",
             "82bb07fffffffff", "82bb37fffffffff"
         ]
-        assert len(result.iloc[0]["h3_linetrace"]) == 12
+        assert len(result.iloc[0]["h3_linetrace"]) == 12  # 12 cells total
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
 
     # TODO
-    # def test_linetrace_multiline_retain_parts(
-    #     self, basic_geodataframe_multilinestring
-    # ):
-    #     result = basic_geodataframe_multilinestring.h3.linetrace(2, retain_parts=True)
-    #     expected_indices = [
-    #         [
-    #             "82bb57fffffffff", "82bb0ffffffffff"
-    #         ],
-    #         [
-    #             "82da87fffffffff", "82da97fffffffff",
-    #             "82bb67fffffffff", "82bb47fffffffff",
-    #             "82bb5ffffffffff", "82bb57fffffffff",
-    #             "82ba27fffffffff", "82bb1ffffffffff",
-    #             "82bb07fffffffff", "82bb37fffffffff"
-    #         ]
-    #     ]
-    #     assert len(result.iloc[0]["h3_linetrace"]) == 2 # Two parts
-    #     assert len(result.iloc[0]["h3_linetrace"][0]) == 2
-    #     assert len(result.iloc[0]["h3_linetrace"][1]) == 10
+    def test_linetrace_multiline_explode_index_parts(
+        self, basic_geodataframe_multilinestring
+    ):
+        result = basic_geodataframe_multilinestring.h3.linetrace(
+            2, explode=True, index_parts=True
+        )
+        expected_indices = [
+            [
+                "82bb57fffffffff", "82bb0ffffffffff"
+            ],
+            [
+                "82da87fffffffff", "82da97fffffffff",
+                "82bb67fffffffff", "82bb47fffffffff",
+                "82bb5ffffffffff", "82bb57fffffffff",
+                "82ba27fffffffff", "82bb1ffffffffff",
+                "82bb07fffffffff", "82bb37fffffffff"
+            ]
+        ]
+        assert len(result["h3_linetrace"]) == 12  # 12 cells in total
+        assert result.iloc[0]["h3_linetrace"] == expected_indices[0][0]
+        assert result.iloc[-1]["h3_linetrace"] == expected_indices[-1][-1]
 
-    # def test_linetrace_explode(self):
+    def test_linetrace_multiline_index_parts_no_explode(
+        self, basic_geodataframe_multilinestring
+    ):
+        result = basic_geodataframe_multilinestring.h3.linetrace(
+            2, explode=False, index_parts=True
+        )
+        expected_indices = [
+            [
+                "82bb57fffffffff", "82bb0ffffffffff"
+            ],
+            [
+                "82da87fffffffff", "82da97fffffffff",
+                "82bb67fffffffff", "82bb47fffffffff",
+                "82bb5ffffffffff", "82bb57fffffffff",
+                "82ba27fffffffff", "82bb1ffffffffff",
+                "82bb07fffffffff", "82bb37fffffffff"
+            ]
+        ]
+        assert len(result["h3_linetrace"]) == 2  # 2 parts
+        assert len(result.iloc[0]["h3_linetrace"]) == 2  # 2 cells
+        assert result.iloc[0]["h3_linetrace"] == expected_indices[0]
+        assert len(result.iloc[-1]["h3_linetrace"]) == 10  # 10 cells
+        assert result.iloc[-1]["h3_linetrace"] == expected_indices[-1]
 
 
 class TestCellArea:
