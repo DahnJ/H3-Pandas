@@ -660,6 +660,9 @@ class H3Accessor:
         881e30973bfffff  0.714286
         881e30973dfffff  0.714286
         """
+        # Drop geometry if present
+        df = self._df.drop(columns=["geometry"], errors="ignore")
+
         if sum([weights is None, k is None]) != 1:
             raise ValueError("Exactly one of `k` and `weights` must be set.")
 
@@ -671,7 +674,7 @@ class H3Accessor:
         # Unweighted case
         if weights is None:
             result = pd.DataFrame(
-                self._df.h3.k_ring(k, explode=True)
+                df.h3.k_ring(k, explode=True)
                 .groupby("h3_k_ring")
                 .sum()
                 .divide((1 + 3 * k * (k + 1)))
@@ -695,10 +698,7 @@ class H3Accessor:
 
         result = (
             pd.concat(
-                [
-                    weighted_hex_ring(self._df, i, weights[i])
-                    for i in range(len(weights))
-                ]
+                [weighted_hex_ring(df, i, weights[i]) for i in range(len(weights))]
             )
             .groupby("h3_hex_ring")
             .sum()
