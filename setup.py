@@ -48,7 +48,7 @@ setup(
         "numpy",
         "typing-extensions",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     extras_require={
         "test": ["pytest", "pytest-cov", "flake8"],
         "docs": ["sphinx", "numpydoc", "pytest-sphinx-theme", "typing-extensions"],
