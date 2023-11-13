@@ -1,7 +1,7 @@
 from h3pandas import h3pandas  # noqa: F401
 from h3 import h3
 import pytest
-from shapely.geometry import Polygon, LineString, MultiLineString, box
+from shapely.geometry import Polygon, LineString, MultiLineString, box, Point
 import pandas as pd
 import geopandas as gpd
 from geopandas.testing import assert_geodataframe_equal
@@ -676,6 +676,12 @@ class TestKRingSmoothing:
         expected = set([1 / 4, 1 / 8])
         result = set(data.h3.k_ring_smoothing(weights=[2, 1])["val"])
         assert expected == result
+
+    def test_does_not_fail_if_geometry_present(self, h3_geodataframe_with_values):
+        h3_geodataframe_with_values["geometry"] = [Point(0, 0)] * len(
+            h3_geodataframe_with_values
+        )
+        h3_geodataframe_with_values.h3.k_ring_smoothing(1)
 
 
 class TestPolyfillResample:

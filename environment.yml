@@ -1,9 +1,8 @@
-name: h3pandas-env
 channels: 
   - conda-forge
 dependencies:
   # Required
-  - python>=3.9
+  - python>=3.9,<3.12
   - shapely
   - geopandas>=0.9.*
   - pandas
