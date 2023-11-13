@@ -759,7 +759,7 @@ class H3Accessor:
         return result.h3.h3_to_geo_boundary() if return_geometry else result
 
     def linetrace(
-        self, resolution : int, explode: bool = False, index_parts: bool = False
+        self, resolution : int, explode: bool = False
     ) -> AnyDataFrame:
         """Experimental. An H3 cell representation of a (Multi)LineString,
         which permits repeated cells, but not if they are repeated in
@@ -772,12 +772,6 @@ class H3Accessor:
         explode : bool
             If True, will explode the resulting list vertically.
             All other columns' values are copied.
-            Default: False
-        index_parts : bool
-            If True, for the resulting index will be a multi-index (original
-            index with an additional level indicating the multiple
-            parts: a new zero-based index for each single part
-            geometry per multi-part geometry).
             Default: False
 
         Returns
@@ -802,8 +796,6 @@ class H3Accessor:
             return list(linetrace(row.geometry, resolution))
 
         df = self._df
-        if index_parts:
-            df = df.explode(index_parts=index_parts)
 
         result = df.apply(func, axis=1)
         if not explode:

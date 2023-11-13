@@ -358,7 +358,6 @@ class TestLineTrace:
             "83bb0dfffffffff",
             "83bb2bfffffffff"
         ]
-        print(result)
         assert result.shape == (5, 3)
         assert 'val' in result.columns
         assert result.iloc[0]['val'] == 10
@@ -379,12 +378,13 @@ class TestLineTrace:
         assert len(result.iloc[0]["h3_linetrace"]) == 12  # 12 cells total
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
 
-    # TODO
     def test_linetrace_multiline_explode_index_parts(
         self, basic_geodataframe_multilinestring
     ):
-        result = basic_geodataframe_multilinestring.h3.linetrace(
-            2, explode=True, index_parts=True
+        result = basic_geodataframe_multilinestring.explode(
+            index_parts=True
+        ).h3.linetrace(
+            2, explode=True
         )
         expected_indices = [
             [
@@ -405,8 +405,10 @@ class TestLineTrace:
     def test_linetrace_multiline_index_parts_no_explode(
         self, basic_geodataframe_multilinestring
     ):
-        result = basic_geodataframe_multilinestring.h3.linetrace(
-            2, explode=False, index_parts=True
+        result = basic_geodataframe_multilinestring.explode(
+            index_parts=True
+        ).h3.linetrace(
+            2, explode=False
         )
         expected_indices = [
             [
