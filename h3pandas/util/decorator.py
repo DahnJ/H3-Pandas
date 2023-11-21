@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable
+from typing import Callable, Iterator
 from h3 import H3CellError
 
 
@@ -32,6 +32,29 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
             raise ValueError(message)
 
     return safe_f
+
+
+def sequential_deduplication(func: Iterator[str]) -> Iterator[str]:
+    """
+    Decorator that doesn't permit two consecutive items of an iterator
+    to be the same.
+
+    Parameters
+    ----------
+    f : Callable
+
+    Returns
+    -------
+    Yields from f, but won't yield two items in a row that are the same.
+    """
+    def inner(*args):
+        iterable = func(*args)
+        last = None
+        while (cell := next(iterable, None)) is not None:
+            if cell != last:
+                yield cell
+            last = cell
+    return inner
 
 
 # TODO: Test

@@ -12,10 +12,10 @@ from h3 import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
-from .const import COLUMN_H3_POLYFILL
+from .const import COLUMN_H3_POLYFILL, COLUMN_H3_LINETRACE
 from .util.decorator import catch_invalid_h3_address, doc_standard
 from .util.functools import wrapped_partial
-from .util.shapely import polyfill
+from .util.shapely import polyfill, linetrace
 
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
@@ -757,6 +757,53 @@ class H3Accessor:
         result = result.reset_index().set_index(COLUMN_H3_POLYFILL)
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
+
+    def linetrace(
+        self, resolution : int, explode: bool = False
+    ) -> AnyDataFrame:
+        """Experimental. An H3 cell representation of a (Multi)LineString,
+        which permits repeated cells, but not if they are repeated in
+        immediate sequence.
+
+        Parameters
+        ----------
+        resolution : int
+            H3 resolution
+        explode : bool
+            If True, will explode the resulting list vertically.
+            All other columns' values are copied.
+            Default: False
+
+        Returns
+        -------
+        (Geo)DataFrame with H3 cells with centroids within the input polygons.
+
+        Examples
+        --------
+        >>> from shapely.geometry import LineString
+        >>> gdf = gpd.GeoDataFrame(geometry=[LineString([[0, 0], [1, 0], [1, 1]])])
+        >>> gdf.h3.linetrace(4)
+                                                    geometry                                       h3_linetrace
+        0  LINESTRING (0.00000 0.00000, 1.00000 0.00000, ...  [83754efffffffff, 83754cfffffffff, 837541fffff...  # noqa E501
+        >>> gdf.h3.linetrace(4, explode=True)
+                                                    geometry     h3_linetrace
+        0  LINESTRING (0.00000 0.00000, 1.00000 0.00000, ...  83754efffffffff
+        0  LINESTRING (0.00000 0.00000, 1.00000 0.00000, ...  83754cfffffffff
+        0  LINESTRING (0.00000 0.00000, 1.00000 0.00000, ...  837541fffffffff
+
+        """
+        def func(row):
+            return list(linetrace(row.geometry, resolution))
+
+        df = self._df
+
+        result = df.apply(func, axis=1)
+        if not explode:
+            assign_args = {COLUMN_H3_LINETRACE: result}
+            return df.assign(**assign_args)
+
+        result = result.explode().to_frame(COLUMN_H3_LINETRACE)
+        return df.join(result)
 
     # Private methods
 
