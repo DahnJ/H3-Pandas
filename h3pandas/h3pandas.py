@@ -8,7 +8,7 @@ import shapely
 import pandas as pd
 import geopandas as gpd
 
-from h3 import h3
+import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
