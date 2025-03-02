@@ -1,6 +1,9 @@
 from . import h3pandas  # noqa: F401s
 
-from ._version import get_versions
+from importlib.metadata import version, PackageNotFoundError
 
-__version__ = get_versions()["version"]
-del get_versions
+try:
+    __version__ = version("package-name")
+except PackageNotFoundError:
+    # package is not installed
+    pass

@@ -2,5 +2,7 @@ channels:
   - conda-forge
 dependencies:
   # Test
+  - ruff
   - pytest
   - pytest-cov
+  - setuptools-scm
