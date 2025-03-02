@@ -8,14 +8,14 @@ import shapely
 import pandas as pd
 import geopandas as gpd
 
-from h3 import h3
+import h3
 from pandas.core.frame import DataFrame
 from geopandas.geodataframe import GeoDataFrame
 
 from .const import COLUMN_H3_POLYFILL, COLUMN_H3_LINETRACE
 from .util.decorator import catch_invalid_h3_address, doc_standard
 from .util.functools import wrapped_partial
-from .util.shapely import polyfill, linetrace
+from .util.shapely import cell_to_boundary_lng_lat, polyfill, linetrace, _switch_lat_lng
 
 AnyDataFrame = Union[DataFrame, GeoDataFrame]
 
@@ -92,7 +92,7 @@ class H3Accessor:
             lats = self._df[lat_col]
 
         h3addresses = [
-            h3.geo_to_h3(lat, lng, resolution) for lat, lng in zip(lats, lngs)
+            h3.latlng_to_cell(lat, lng, resolution) for lat, lng in zip(lats, lngs)
         ]
 
         colname = self._format_resolution(resolution)
@@ -130,9 +130,9 @@ class H3Accessor:
 
         """
         return self._apply_index_assign(
-            h3.h3_to_geo,
+            h3.cell_to_latlng,
             "geometry",
-            lambda x: shapely.geometry.Point(reversed(x)),
+            lambda x: _switch_lat_lng(shapely.geometry.Point(x)),
             lambda x: gpd.GeoDataFrame(x, crs="epsg:4326"),
         )
 
@@ -158,10 +158,9 @@ class H3Accessor:
         881e2659c3fffff    1  POLYGON ((14.99201 51.00565, 14.98973 51.00133...
         """
         return self._apply_index_assign(
-            wrapped_partial(h3.h3_to_geo_boundary, geo_json=True),
+            wrapped_partial(cell_to_boundary_lng_lat),
             "geometry",
-            lambda x: shapely.geometry.Polygon(x),
-            lambda x: gpd.GeoDataFrame(x, crs="epsg:4326"),
+            finalizer=lambda x: gpd.GeoDataFrame(x, crs="epsg:4326"),
         )
 
     @doc_standard("h3_resolution", "containing the resolution of each H3 address")
@@ -176,7 +175,7 @@ class H3Accessor:
         881e309739fffff    5              8
         881e2659c3fffff    1              8
         """
-        return self._apply_index_assign(h3.h3_get_resolution, "h3_resolution")
+        return self._apply_index_assign(h3.get_resolution, "h3_resolution")
 
     @doc_standard("h3_base_cell", "containing the base cell of each H3 address")
     def h3_get_base_cell(self):
@@ -190,7 +189,7 @@ class H3Accessor:
         881e309739fffff    5            15
         881e2659c3fffff    1            15
         """
-        return self._apply_index_assign(h3.h3_get_base_cell, "h3_base_cell")
+        return self._apply_index_assign(h3.get_base_cell_number, "h3_base_cell")
 
     @doc_standard("h3_is_valid", "containing the validity of each H3 address")
     def h3_is_valid(self):
@@ -203,7 +202,7 @@ class H3Accessor:
         881e309739fffff    5         True
         INVALID            1        False
         """
-        return self._apply_index_assign(h3.h3_is_valid, "h3_is_valid")
+        return self._apply_index_assign(h3.is_valid_cell, "h3_is_valid")
 
     @doc_standard(
         "h3_k_ring", "containing a list H3 addresses within a distance of `k`"
@@ -250,7 +249,7 @@ class H3Accessor:
         881e309739fffff    5  881e309739fffff
         881e309739fffff    5  881e309731fffff
         """
-        func = wrapped_partial(h3.k_ring, k=k)
+        func = wrapped_partial(h3.grid_disk, k=k)
         column_name = "h3_k_ring"
         if explode:
             return self._apply_index_explode(func, column_name, list)
@@ -295,7 +294,7 @@ class H3Accessor:
         881e309739fffff    5  881e309715fffff
         881e309739fffff    5  881e309731fffff
         """
-        func = wrapped_partial(h3.hex_ring, k=k)
+        func = wrapped_partial(h3.grid_ring, k=k)
         column_name = "h3_hex_ring"
         if explode:
             return self._apply_index_explode(func, column_name, list)
@@ -330,7 +329,7 @@ class H3Accessor:
             else "h3_parent"
         )
         return self._apply_index_assign(
-            wrapped_partial(h3.h3_to_parent, res=resolution), column
+            wrapped_partial(h3.cell_to_parent, res=resolution), column
         )
 
     @doc_standard("h3_center_child", "containing the center child of each H3 address")
@@ -352,7 +351,7 @@ class H3Accessor:
         881e2659c3fffff    1  891e2659c23ffff
         """
         return self._apply_index_assign(
-            wrapped_partial(h3.h3_to_center_child, res=resolution), "h3_center_child"
+            wrapped_partial(h3.cell_to_center_child, res=resolution), "h3_center_child"
         )
 
     @doc_standard(
@@ -395,7 +394,7 @@ class H3Accessor:
         """
 
         def func(row):
-            return list(polyfill(row.geometry, resolution, True))
+            return list(polyfill(row.geometry, resolution))
 
         result = self._df.apply(func, axis=1)
 
@@ -553,7 +552,7 @@ class H3Accessor:
         811e3ffffffffff    6
         """
         parent_h3addresses = [
-            catch_invalid_h3_address(h3.h3_to_parent)(h3address, resolution)
+            catch_invalid_h3_address(h3.cell_to_parent)(h3address, resolution)
             for h3address in self._df.index
         ]
         h3_parent_column = self._format_resolution(resolution)
@@ -758,9 +757,7 @@ class H3Accessor:
 
         return result.h3.h3_to_geo_boundary() if return_geometry else result
 
-    def linetrace(
-        self, resolution : int, explode: bool = False
-    ) -> AnyDataFrame:
+    def linetrace(self, resolution: int, explode: bool = False) -> AnyDataFrame:
         """Experimental. An H3 cell representation of a (Multi)LineString,
         which permits repeated cells, but not if they are repeated in
         immediate sequence.
@@ -792,6 +789,7 @@ class H3Accessor:
         0  LINESTRING (0.00000 0.00000, 1.00000 0.00000, ...  837541fffffffff
 
         """
+
         def func(row):
             return list(linetrace(row.geometry, resolution))
 
