@@ -1,2 +1,54 @@
+[build-system]
+requires = ["setuptools>=64", "wheel", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "h3pandas"
+dynamic = ["version"]
+description = "Integration of H3 and GeoPandas"
+license = { file = "LICENSE" }
+authors = [{ name = "Dahn", email = "dahnjahn@gmail.com" }]
+requires-python = ">=3.9"
+dependencies = [
+    "geopandas",
+    "numpy",
+    "pandas",
+    "shapely",
+    "h3",
+    "typing-extensions",
+]
+
+[tool.setuptools_scm]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "ruff"]
+docs = ["sphinx", "numpydoc", "pytest-sphinx-theme", "typing-extensions"]
+
+[project.urls]
+Homepage = "https://github.com/DahnJ/H3-Pandas"
+Download = "https://github.com/DahnJ/H3-Pandas/releases"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["h3pandas*"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[tool.codespell]
+skip = "*.ipynb"
+
 [tool.ruff]
 exclude = ["**/*.ipynb"]
+
+[tool.ruff.lint]
+ignore = ["E203"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::UserWarning"]

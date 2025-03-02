@@ -5,3 +5,4 @@ dependencies:
   - ruff
   - pytest
   - pytest-cov
+  - setuptools-scm
