@@ -37,6 +37,7 @@ include = ["h3pandas*"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
+long_description = {file = "README.md", content-type = "text/markdown"}
 
 [tool.codespell]
 skip = "*.ipynb"
