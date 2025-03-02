@@ -5,19 +5,19 @@ from h3pandas.util.shapely import polyfill, linetrace
 
 @pytest.fixture
 def polygon():
-    return Polygon([(48, 18), (49, 18), (49, 19), (48, 19)])
+    return Polygon([(18, 48), (18, 49), (19, 49), (19, 48)])
 
 
 @pytest.fixture
 def polygon_b():
-    return Polygon([(54, 11), (56, 11), (56, 12), (54, 12)])
+    return Polygon([(11, 54), (11, 56), (12, 56), (12, 54)])
 
 
 @pytest.fixture
 def polygon_with_hole():
     return Polygon(
-        [(48, 18), (49, 18), (49, 19), (48, 19)],
-        [[(48.4, 18.2), (48.8, 18.2), (48.8, 18.6), (48.4, 18.6)]],
+        [(18, 48), (19, 48), (19, 49), (18, 49)],
+        [[(18.2, 48.4), (18.6, 48.4), (18.6, 48.8), (18.2, 48.8)]],
     )
 
 
@@ -73,6 +73,6 @@ class TestLineTrace:
         assert expected == result
 
         # Lists not sets, repeated items are expected, just not in sequence
-        expected2 = ['82754ffffffffff', '827547fffffffff', '82754ffffffffff']
+        expected2 = ["82754ffffffffff", "827547fffffffff", "82754ffffffffff"]
         result2 = list(linetrace(multiline, 2))
         assert expected2 == result2

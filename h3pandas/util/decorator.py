@@ -1,6 +1,5 @@
 from functools import wraps
 from typing import Callable, Iterator
-from h3 import H3CellError
 
 
 def catch_invalid_h3_address(f: Callable) -> Callable:
@@ -25,7 +24,7 @@ def catch_invalid_h3_address(f: Callable) -> Callable:
     def safe_f(*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except (TypeError, ValueError, H3CellError) as e:
+        except (TypeError, ValueError) as e:
             message = "H3 method raised an error. Is the H3 address correct?"
             message += f"\nCaller: {f.__name__}({_print_signature(*args, **kwargs)})"
             message += f"\nOriginal error: {repr(e)}"
@@ -47,6 +46,7 @@ def sequential_deduplication(func: Iterator[str]) -> Iterator[str]:
     -------
     Yields from f, but won't yield two items in a row that are the same.
     """
+
     def inner(*args):
         iterable = func(*args)
         last = None
@@ -54,6 +54,7 @@ def sequential_deduplication(func: Iterator[str]) -> Iterator[str]:
             if cell != last:
                 yield cell
             last = cell
+
     return inner
 
 

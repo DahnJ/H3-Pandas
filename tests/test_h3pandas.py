@@ -1,10 +1,11 @@
 from h3pandas import h3pandas  # noqa: F401
-from h3 import h3
 import pytest
 from shapely.geometry import Polygon, LineString, MultiLineString, box, Point
 import pandas as pd
 import geopandas as gpd
 from geopandas.testing import assert_geodataframe_equal
+
+from h3pandas.util.shapely import cell_to_boundary_lng_lat
 
 
 # TODO: Make sure methods are tested both for
@@ -35,22 +36,24 @@ def basic_geodataframe_polygon(basic_geodataframe):
 
 @pytest.fixture
 def basic_geodataframe_linestring():
-    geom = LineString([
-        (174.793092, -37.005372), (175.621138, -40.323142)
-    ])
+    geom = LineString([(174.793092, -37.005372), (175.621138, -40.323142)])
     return gpd.GeoDataFrame(geometry=[geom], crs="epsg:4326")
 
 
 @pytest.fixture
 # NB one of the LineString parts traverses the antimeridian
 def basic_geodataframe_multilinestring(basic_geodataframe):
-    geom = MultiLineString([
-        [[174.793092, -37.005372], [175.621138, -40.323142]],
+    geom = MultiLineString(
         [
-            [168.222656, -45.79817], [171.914063, -34.307144],
-            [178.769531, -37.926868], [183.515625, -43.992815]
+            [[174.793092, -37.005372], [175.621138, -40.323142]],
+            [
+                [168.222656, -45.79817],
+                [171.914063, -34.307144],
+                [178.769531, -37.926868],
+                [183.515625, -43.992815],
+            ],
         ]
-    ])
+    )
     return gpd.GeoDataFrame(geometry=[geom], crs="epsg:4326")
 
 
@@ -97,7 +100,7 @@ def h3_dataframe_with_values():
 def h3_geodataframe_with_values(h3_dataframe_with_values):
     """GeoDataFrame with resolution 9 H3 index, values, and Hexagon geometries"""
     geometry = [
-        Polygon(h3.h3_to_geo_boundary(h, True)) for h in h3_dataframe_with_values.index
+        Polygon(cell_to_boundary_lng_lat(h)) for h in h3_dataframe_with_values.index
     ]
     return gpd.GeoDataFrame(
         h3_dataframe_with_values, geometry=geometry, crs="epsg:4326"
@@ -315,7 +318,7 @@ class TestLineTrace:
             "83bb54fffffffff",
             "83bb72fffffffff",
             "83bb0dfffffffff",
-            "83bb2bfffffffff"
+            "83bb2bfffffffff",
         ]
         assert len(result.iloc[0]["h3_linetrace"]) == 5
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
@@ -327,11 +330,11 @@ class TestLineTrace:
             "83bb54fffffffff",
             "83bb72fffffffff",
             "83bb0dfffffffff",
-            "83bb2bfffffffff"
+            "83bb2bfffffffff",
         ]
         assert result.shape == (5, 2)
-        assert result.iloc[0]['h3_linetrace'] == expected_indices[0]
-        assert result.iloc[-1]['h3_linetrace'] == expected_indices[-1]
+        assert result.iloc[0]["h3_linetrace"] == expected_indices[0]
+        assert result.iloc[-1]["h3_linetrace"] == expected_indices[-1]
 
     def test_linetrace_with_values(self, h3_geodataframe_with_polyline_values):
         result = h3_geodataframe_with_polyline_values.h3.linetrace(3)
@@ -340,40 +343,45 @@ class TestLineTrace:
             "83bb54fffffffff",
             "83bb72fffffffff",
             "83bb0dfffffffff",
-            "83bb2bfffffffff"
+            "83bb2bfffffffff",
         ]
         assert result.shape == (1, 3)
-        assert 'val' in result.columns
-        assert result.iloc[0]['val'] == 10
+        assert "val" in result.columns
+        assert result.iloc[0]["val"] == 10
         assert len(result.iloc[0]["h3_linetrace"]) == 5
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
 
-    def test_linetrace_with_values_explode(self,
-                                           h3_geodataframe_with_polyline_values):
+    def test_linetrace_with_values_explode(self, h3_geodataframe_with_polyline_values):
         result = h3_geodataframe_with_polyline_values.h3.linetrace(3, explode=True)
         expected_indices = [
             "83bb50fffffffff",
             "83bb54fffffffff",
             "83bb72fffffffff",
             "83bb0dfffffffff",
-            "83bb2bfffffffff"
+            "83bb2bfffffffff",
         ]
         assert result.shape == (5, 3)
-        assert 'val' in result.columns
-        assert result.iloc[0]['val'] == 10
+        assert "val" in result.columns
+        assert result.iloc[0]["val"] == 10
         assert result.iloc[0]["h3_linetrace"] == expected_indices[0]
-        assert result.iloc[-1]['h3_linetrace'] == expected_indices[-1]
+        assert result.iloc[-1]["h3_linetrace"] == expected_indices[-1]
         assert not result["val"].isna().any()
 
     def test_linetrace_multiline(self, basic_geodataframe_multilinestring):
         result = basic_geodataframe_multilinestring.h3.linetrace(2)
         expected_indices = [
-            "82bb57fffffffff", "82bb0ffffffffff",
-            "82da87fffffffff", "82da97fffffffff",
-            "82bb67fffffffff", "82bb47fffffffff",
-            "82bb5ffffffffff", "82bb57fffffffff",
-            "82ba27fffffffff", "82bb1ffffffffff",
-            "82bb07fffffffff", "82bb37fffffffff"
+            "82bb57fffffffff",
+            "82bb0ffffffffff",
+            "82da87fffffffff",
+            "82da97fffffffff",
+            "82bb67fffffffff",
+            "82bb47fffffffff",
+            "82bb5ffffffffff",
+            "82bb57fffffffff",
+            "82ba27fffffffff",
+            "82bb1ffffffffff",
+            "82bb07fffffffff",
+            "82bb37fffffffff",
         ]
         assert len(result.iloc[0]["h3_linetrace"]) == 12  # 12 cells total
         assert list(result.iloc[0]["h3_linetrace"]) == expected_indices
@@ -383,20 +391,21 @@ class TestLineTrace:
     ):
         result = basic_geodataframe_multilinestring.explode(
             index_parts=True
-        ).h3.linetrace(
-            2, explode=True
-        )
+        ).h3.linetrace(2, explode=True)
         expected_indices = [
+            ["82bb57fffffffff", "82bb0ffffffffff"],
             [
-                "82bb57fffffffff", "82bb0ffffffffff"
+                "82da87fffffffff",
+                "82da97fffffffff",
+                "82bb67fffffffff",
+                "82bb47fffffffff",
+                "82bb5ffffffffff",
+                "82bb57fffffffff",
+                "82ba27fffffffff",
+                "82bb1ffffffffff",
+                "82bb07fffffffff",
+                "82bb37fffffffff",
             ],
-            [
-                "82da87fffffffff", "82da97fffffffff",
-                "82bb67fffffffff", "82bb47fffffffff",
-                "82bb5ffffffffff", "82bb57fffffffff",
-                "82ba27fffffffff", "82bb1ffffffffff",
-                "82bb07fffffffff", "82bb37fffffffff"
-            ]
         ]
         assert len(result["h3_linetrace"]) == 12  # 12 cells in total
         assert result.iloc[0]["h3_linetrace"] == expected_indices[0][0]
@@ -407,20 +416,21 @@ class TestLineTrace:
     ):
         result = basic_geodataframe_multilinestring.explode(
             index_parts=True
-        ).h3.linetrace(
-            2, explode=False
-        )
+        ).h3.linetrace(2, explode=False)
         expected_indices = [
+            ["82bb57fffffffff", "82bb0ffffffffff"],
             [
-                "82bb57fffffffff", "82bb0ffffffffff"
+                "82da87fffffffff",
+                "82da97fffffffff",
+                "82bb67fffffffff",
+                "82bb47fffffffff",
+                "82bb5ffffffffff",
+                "82bb57fffffffff",
+                "82ba27fffffffff",
+                "82bb1ffffffffff",
+                "82bb07fffffffff",
+                "82bb37fffffffff",
             ],
-            [
-                "82da87fffffffff", "82da97fffffffff",
-                "82bb67fffffffff", "82bb47fffffffff",
-                "82bb5ffffffffff", "82bb57fffffffff",
-                "82ba27fffffffff", "82bb1ffffffffff",
-                "82bb07fffffffff", "82bb37fffffffff"
-            ]
         ]
         assert len(result["h3_linetrace"]) == 2  # 2 parts
         assert len(result.iloc[0]["h3_linetrace"]) == 2  # 2 cells
@@ -627,7 +637,7 @@ class TestH3ToParentAggregate:
         result = h3_geodataframe_with_values.h3.h3_to_parent_aggregate(8)
         # TODO: Why does Pandas not preserve the order of groups here?
         index = pd.Index(["881f1d4811fffff", "881f1d4817fffff"], name="h3_08")
-        geometry = [Polygon(h3.h3_to_geo_boundary(h, True)) for h in index]
+        geometry = [Polygon(cell_to_boundary_lng_lat(h)) for h in index]
         expected = gpd.GeoDataFrame(
             {"val": [5, 3]}, geometry=geometry, index=index, crs="epsg:4326"
         )
